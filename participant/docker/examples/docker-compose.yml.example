@@ -1,0 +1,51 @@
+services:
+  privacy-ledger:
+    image: registry.parfin.io/rayls-privacy-ledger:v1.8.5
+    entrypoint: ["/app/var/start.sh"]
+    volumes:
+      - ./rayls/privacy-ledger/data:/app/data
+      - ./rayls/privacy-ledger/var/config.toml:/app/var/config.toml:ro
+      - ./rayls/privacy-ledger/var/genesis.json:/app/var/genesis.json:ro
+      - ./rayls/privacy-ledger/var/start.sh:/app/var/start.sh
+    environment:
+      - MONGODB_DATABASE=rayls-privacy-ledger
+      - MONGODB_CONN=MONGODB_CONNECTION_STRING
+    ports:
+      - 8545:8545
+      - 8660:8660
+    healthcheck:
+      test: 
+        - "CMD-SHELL"
+        - "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_getBlockByNumber\",\"params\":[\"latest\", true],\"id\":1}' localhost:8545"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  relayer:
+      image: registry.parfin.io/rayls-relayer:v1.8.5
+      entrypoint: ["/app/raylz-relayer", "run", "--config", "/app/var/empty-config.json"]
+      volumes:
+       - ./rayls/relayer/var/config.json:/app/var/empty-config.json:ro
+      restart: on-failure
+      environment:
+      - RELAYER_DATABASE_TYPE=mongodb
+      - RELAYER_DATABASE_NAME=rayls-relayer
+      - RELAYER_DATABASE_CONNECTIONSTRING=MONGODB_CONNECTION_STRING
+      - RELAYER_BLOCKCHAIN_CHAINURL=http://privacy-ledger:8545
+      - RELAYER_BLOCKCHAIN_CHAINWSURL=ws://privacy-ledger:8660  
+      - RELAYER_BLOCKCHAIN_CHAINID=BLOCKCHAIN_CHAIN_ID
+      - RELAYER_BLOCKCHAIN_BATCHSIZE=1500
+      - RELAYER_COMMITCHAIN_CHAINURL=http://commitchain-sandbox.parfin.corp:8545
+      - RELAYER_COMMITCHAIN_CHAINWSURL=ws://commitchain-sandbox.parfin.corp:8546
+      - RELAYER_COMMITCHAIN_COMMITCHAINPLSTORAGECONTRACT=0xE5d45AC4B9Cc4DaC36D4c9cD8C7023Cc83AE0B0a
+      - RELAYER_COMMITCHAIN_PARTICIPANTSTORAGECONTRACT=0xEf49f8CB2AAb162c13144e90fBFab47673Db193F
+      - RELAYER_COMMITCHAIN_CHAINID=381660001
+      - RELAYER_COMMITCHAIN_CCSTARTINGBLOCK=4809558
+      - RELAYER_COMMITCHAIN_VERSION="1.8"
+      - RELAYER_COMMITCHAIN_ATOMICTELEPORTCONTRACT=0x80590C666834eE6DEF2d992300F3f454cC6CF4c0
+      - RELAYER_COMMITCHAIN_RESOURCEREGISTRYCONTRACT=0x3fFa24dc77b0647a48dAC94843CA21cB0118542F
+      - RELAYER_COMMITCHAIN_CCENDPOINTADDRESS=0x324c3070a668c416823e168FCD917bCe79F51f35
+      - RELAYER_COMMITCHAIN_BALANCECOMMITMENTCONTRACT=0xB147EEA444565789c82075318198b95EefCdc489
+      - RELAYER_COMMITCHAIN_TOKENREGISTRYCONTRACT=0x92020052f09fa478aA651eD78d50716117fA777E
+      - RELAYER_COMMITCHAIN_OPERATORCHAINID=999
+      depends_on:
+      - privacy-ledger

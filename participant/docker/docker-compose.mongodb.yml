@@ -1,0 +1,7 @@
+services:
+  mongodb:
+    image: registry.parfin.io/mongo6_rs:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb/data:/data/db

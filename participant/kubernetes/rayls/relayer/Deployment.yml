@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rayls-relayer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rayls-relayer
+  template:
+    metadata:
+      labels:
+        app: rayls-relayer
+    spec:
+      containers:
+        - name: rayls-relayer
+          image: registry.parfin.io/rayls-relayer:v1.8.5
+          command: ["/app/raylz-relayer", "run", "--config", "/app/var/config.json"]
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          volumeMounts:
+            - mountPath: /app/var
+              name: config
+      volumes:
+         - name: config
+           configMap:
+             defaultMode: 0700
+             name: rayls-relayer
+      imagePullSecrets:
+        - name: registry-parfin-io

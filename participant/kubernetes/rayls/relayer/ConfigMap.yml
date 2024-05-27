@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rayls-relayer
+data:
+  config.json: |
+    {
+      "Database": {
+        "ConnectionString": "mongodb+srv://username:password@endpoint",
+        "Name": "rayls-relayer",
+        "Type": "mongodb"
+      },
+      "Blockchain": {
+        "ChainID": "xxxxxxxxxxxxx",
+        "ChainURL": "http://rayls-privacy-ledger:8545",
+        "ChainWSURL": "ws://rayls-privacy-ledger:8660",
+        "BatchSize": 1000,
+        "StartingBlock": "0"
+      },
+      "CommitChain": {
+        "ChainURL": "xxxxxxxxxxxxx",
+        "ChainWSUrl": "xxxxxxxxxxx",
+        "CommitChainPLStorageContract": "xxxxxxxxxxxxx",
+        "ParticipantStorageContract": "xxxxxxxxxxxxx8",
+        "ChainId": "xxxxxxxxxxxxx",
+        "CcStartingBlock": xxxxxxxxxxxxx,
+        "Version": "1.8",
+        "AtomicTeleportContract": "xxxxxxxxxxxxx",
+        "ResourceRegistryContract": "xxxxxxxxxxxxx",
+        "CcEndpointAddress": "xxxxxxxxxxxxx",
+        "BalanceCommitmentContract": "xxxxxxxxxxxxx",
+        "TokenRegistryContract": "xxxxxxxxxxxxx",
+        "OperatorChainId": "999"
+      }
+    }
