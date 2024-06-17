@@ -113,7 +113,7 @@ spec:
             claimName: rayls-privacy-ledger-pvc
       containers:
         - name: rayls-privacy-ledger
-          image: registry.parfin.io/rayls-privacy-ledger:v1.8.5
+          image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
           ports:
@@ -246,6 +246,7 @@ INFO [05-29|13:51:15.556] Looking for peers  peercount=0 tried=8 static=0
 | CommitChain.ParticipantStorageContract   | Participant Storage Contract                                                          |
 | CommitChain.ChainId                      | ChainID da Commit Chain                                                               |
 | CommitChain.CcStartingBlock              | Commit Chain Starting Block                                                           |
+| CommitChain.CcAtomicRevertStartingBlock  | Deverá ser o mesmo valor do Commit Chain Starting Block   
 | CommitChain.AtomicTeleportContract       | Commit Chain Atomic Teleport Contract                                                 |
 | CommitChain.ResourceRegistryContract     | Commit Chain Resource Registry Contract                                               |
 | CommitChain.CcEndpointAddress            | Commit Chain Endpoint Address                                                         |
@@ -281,7 +282,8 @@ data:
         "ParticipantStorageContract": "xxxxxxxxxxxxx8",
         "ChainId": "xxxxxxxxxxxxx",
         "CcStartingBlock": xxxxxxxxxxxxx,
-        "Version": "1.8",
+        "CcAtomicRevertStartingBlock": "xxxxxxxxxxxxx",
+        "Version": "1.8.6.2",
         "AtomicTeleportContract": "xxxxxxxxxxxxx",
         "ResourceRegistryContract": "xxxxxxxxxxxxx",
         "CcEndpointAddress": "xxxxxxxxxxxxx",
@@ -320,14 +322,14 @@ Os logs do pod em um cenário de sucesso será:
 [14:21:10 2024-05-29] DEBUG: Attempt to ensure private keys set and contracts deployed | 
 [14:21:10 2024-05-29] INFO: Check if Private Ledger has Private Keys defined... | 
 [14:21:10 2024-05-29] INFO: Check if Private Ledger is deployed... | 
-[14:21:10 2024-05-29] INFO: Deployment not found | Version="1.8" 
+[14:21:10 2024-05-29] INFO: Deployment not found | Version="1.8.6.2" 
 [14:21:10 2024-05-29] INFO: No other deployment found for this version. Starting a new deployment... | 
 [14:21:10 2024-05-29] INFO: Deploying Private Ledger contracts | 
 [14:21:10 2024-05-29] INFO: SignatureStorage deployment transaction sent | TX_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 [14:21:42 2024-05-29] INFO: DeployRaylzMessageExecutor deployment transaction sent. Hash: | TX_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 [14:21:52 2024-05-29] INFO: DeployEndpoint deployment transaction sent: | TX_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 [14:21:55 2024-05-29] INFO: DeployRaylzContractFactory deployment transaction sent. Hash: | TX_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-[14:22:12 2024-05-29] INFO: Deployment document inserted | version="1.8" 
+[14:22:12 2024-05-29] INFO: Deployment document inserted | version="1.8.6.2" 
 [14:22:12 2024-05-29] INFO: 📝 Endpoint Address from Private Ledger  | ADDRESS=0xExEMPL0AFa067aCC9EXAMPLE6C382282bEXAMPL1
 ```
 

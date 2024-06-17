@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: rayls-relayer
-          image: registry.parfin.io/rayls-relayer:v1.8.5
+          image: registry.parfin.io/rayls-relayer:v1.8.6.1
           command: ["/app/raylz-relayer", "run", "--config", "/app/var/config.json"]
           resources:
             limits:

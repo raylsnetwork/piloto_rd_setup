@@ -122,6 +122,7 @@ cat <<EOF > ./rayls/relayer/var/config.json
     "ParticipantStorageContract": "\${RELAYER_COMMITCHAIN_PARTICIPANTSTORAGECONTRACT}",
     "ChainId": "\${RELAYER_COMMITCHAIN_CHAINID}",
     "CcStartingBlock": "\${RELAYER_COMMITCHAIN_CCSTARTINGBLOCK}",
+    "CcAtomicRevertStartingBlock": "\${RELAYER_COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK}",
     "Version": "\${RELAYER_COMMITCHAIN_VERSION}",
     "AtomicTeleportContract": "\${RELAYER_COMMITCHAIN_ATOMICTELEPORTCONTRACT}",
     "ResourceRegistryContract": "\${RELAYER_COMMITCHAIN_RESOURCEREGISTRYCONTRACT}",

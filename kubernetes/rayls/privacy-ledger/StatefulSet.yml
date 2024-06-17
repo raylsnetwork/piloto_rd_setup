@@ -25,7 +25,7 @@ spec:
             claimName: rayls-privacy-ledger-pvc
       containers:
         - name: rayls-privacy-ledger
-          image: registry.parfin.io/rayls-privacy-ledger:v1.8.5
+          image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
           ports:
