@@ -3,6 +3,7 @@ kind: PersistentVolume
 metadata:
   name: rayls-privacy-ledger-sc
 spec:
+  storageClassName: rayls-privacy-ledger-sc
   capacity:
     storage: 2Gi
   accessModes:
