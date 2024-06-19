@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rayls-privacy-ledger-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: rayls-privacy-ledger-sc
+  resources:
+    requests:
+      storage: 1Gi
