@@ -83,7 +83,7 @@ Para outras abordagens relacionadas a persistência de dados do Kubernetes, segu
 | MONGODB_CONN                                 | Connection String do MongoDB. Exemplo: `mongodb+srv://<username>:<password>@<endpoint>`     |
 | NETWORKID                                    | `CHAIN_ID` da Privacy Ledger                                                                |
 
-> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb:/<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
+> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb://<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
 
 ```yaml
 apiVersion: apps/v1
