@@ -7,6 +7,10 @@
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
 
+> **⚠️ Atenção:**
+>
+> Não foram realizados testes utilizando o Minikube e o K3s até o momento.
+
 ### Kubernetes Namespace
 
 - Crie o namespace que será utilizado pelas aplicações.
