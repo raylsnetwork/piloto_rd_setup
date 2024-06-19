@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rayls-privacy-ledger
+  labels:
+    app: rayls-privacy-ledger
+spec:
+  replicas: 1
+  serviceName: rayls-privacy-ledger
+  selector:
+    matchLabels:
+      app: rayls-privacy-ledger
+  template:
+    metadata:
+      labels:
+        app: rayls-privacy-ledger
+    spec:
+      volumes:
+        - configMap:
+            defaultMode: 0700
+            name: rayls-privacy-ledger
+          name: config
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: rayls-privacy-ledger-pvc
+      containers:
+        - name: rayls-privacy-ledger
+          image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
+          imagePullPolicy: Always
+          command: ["/app/var/start.sh"]
+          ports:
+            - containerPort: 80
+              name: 80tcp
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8545
+              scheme: HTTP
+            initialDelaySeconds: 180
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 1
+          env:
+            - name: DATADIR
+              value: /app/data/raylz-private-ledger
+            - name: MONGODB_DATABASE
+              value: "rayls-privacy-ledger"
+            - name: MINER_ETHERBASE
+              value: "0x1bE478ee83095aF7F21bd84743fB39B68Dd600A6"
+            - name: NETWORKID
+              value: "981741415"
+            - name: MONGODB_CONN
+              value: "mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0"
+          volumeMounts:
+            - mountPath: /app/var
+              name: config
+              readOnly: true
+            - mountPath: /app/data
+              name: persistent-storage
+      imagePullSecrets:
+        - name: registry-parfin-io

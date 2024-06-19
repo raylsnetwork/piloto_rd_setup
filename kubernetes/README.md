@@ -7,6 +7,10 @@
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
 
+> **⚠️ Atenção:**
+>
+> Não foram realizados testes utilizando o Minikube e o K3s até o momento.
+
 ### Kubernetes Namespace
 
 - Crie o namespace que será utilizado pelas aplicações.
@@ -83,7 +87,7 @@ Para outras abordagens relacionadas a persistência de dados do Kubernetes, segu
 | MONGODB_CONN                                 | Connection String do MongoDB. Exemplo: `mongodb+srv://<username>:<password>@<endpoint>`     |
 | NETWORKID                                    | `CHAIN_ID` da Privacy Ledger                                                                |
 
-> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb:/<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
+> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb://<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
 
 ```yaml
 apiVersion: apps/v1
