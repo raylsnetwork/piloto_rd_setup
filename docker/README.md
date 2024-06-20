@@ -4,6 +4,7 @@
 
 Para que os componentes dos participantes do Drex possam utilizar a Rayls, é necessário:
 
+- Acesso ao repositório piloto_rd_setup.
 - Acesso ao repositório da Parfin (registry.parfin.io)
 - WSL/Sistema operacional Linux
 - [Make](https://www.gnu.org/software/make/)
@@ -11,6 +12,13 @@ Para que os componentes dos participantes do Drex possam utilizar a Rayls, é ne
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
+
+### Clonar Repositorio
+
+- Faça clone do repositório piloto_rd_setup.
+```bash
+git clone https://github.com/raylsnetwork/piloto_rd_setup.git
+```
 
 ### MongoDB
 
@@ -74,7 +82,7 @@ docker login registry.parfin.io
 >
 > Caso esteja utilizando um cluster provisionado (MongoDB Atlas), utilize o seguinte padrão `mongodb+srv://username:password@endpoint`
 
-Para criar os diretórios e arquivos de configuração basta executar o seguinte comando:
+Para criar os diretórios e arquivos de configuração basta acessar a pasta docker e executar o seguinte comando:
 ```bash
 cd docker
 make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
