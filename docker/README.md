@@ -38,7 +38,7 @@ Essa imagem está disponível em `registry.parfin.io/mongo6_rs:latest`
 > Reforçamos que essa imagem estará disponível no repositório somente enquanto durarem os testes do Drex e que não deve ser utilizada em produção. A Parfin não se responsabiliza pelo suporte no Mongo ou caso ocorra alguma perda de dados relacionada a essa imagem.
 
 
-Caso queria utilizar essa imagem basta executar o seguinte comando: 
+Caso queria utilizar essa imagem basta acessar a pasta docker e executar o seguinte comando: 
 
 ```bash
 cd docker
