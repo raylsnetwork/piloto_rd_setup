@@ -5,7 +5,7 @@
 Para que os componentes dos participantes do Drex possam utilizar a Rayls, é necessário:
 
 - Acesso ao repositório piloto_rd_setup.
-- Acesso ao repositório da Parfin (registry.parfin.io)
+- Acesso ao registry da Parfin (registry.parfin.io)
 - WSL/Sistema operacional Linux
 - [Make](https://www.gnu.org/software/make/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
