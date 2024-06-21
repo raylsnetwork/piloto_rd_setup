@@ -10,9 +10,10 @@ help:
 	@echo "down-mongodb        - Stop the MongoDB Cluster and remove orphans"
 	@echo "up-privacy-ledger   - Start the Privacy ledger"
 	@echo "up-relayer          - Start the Relayer"
-	@echo "down-privacy-ledger - Start the Privacy ledger"
-	@echo "down-relayer        - Start the Relayer"
+	@echo "down-privacy-ledger - Stop the Privacy ledger"
+	@echo "down-relayer        - Stop the Relayer"
 	@echo "down-rayls          - Stop the Privacy Ledger, Relayer and remove orphans"
+	@echo "down-all"           - Stop all services and remove orphans
 
 init:
 	@chmod +x ./scripts/init.sh && ./scripts/init.sh $(CHAINID) $(MONGODB_CONNECTION_STRING)

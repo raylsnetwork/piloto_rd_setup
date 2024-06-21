@@ -15,6 +15,11 @@ Para que os componentes dos participantes do Drex possam utilizar a Rayls, é ne
 
 ### Clonar Repositorio
 
+> **⚠️ Atenção:**
+>
+> Os tokens de acesso pessoal são uma alternativa ao uso de senhas para autenticação no GitHub ao usar a API do GitHub ou a linha de comando.
+> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+
 - Faça clone do repositório piloto_rd_setup.
 ```bash
 git clone https://github.com/raylsnetwork/piloto_rd_setup.git
@@ -83,6 +88,7 @@ docker login registry.parfin.io
 > Caso esteja utilizando um cluster provisionado (MongoDB Atlas), utilize o seguinte padrão `mongodb+srv://username:password@endpoint`
 
 Para criar os diretórios e arquivos de configuração basta acessar a pasta docker e executar o seguinte comando:
+
 ```bash
 cd docker
 make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
@@ -121,6 +127,7 @@ Please update the RELAYER_COMMITCHAIN variables before running the docker-compos
 | RELAYER_COMMITCHAIN_PARTICIPANTSTORAGECONTRACT | Participant Storage Contract                                                         |
 | RELAYER_COMMITCHAIN_CHAINID                | ChainID da Commit Chain                                                                     |
 | RELAYER_COMMITCHAIN_CCSTARTINGBLOCK        | Commit Chain Starting Block                                                                 |
+| RELAYER_COMMITCHAIN_CCATOMICREVERTSTARTINGBLOCK | Deverá ser o mesmo do Commit Chain Starting Block                                      |
 | RELAYER_COMMITCHAIN_ATOMICTELEPORTCONTRACT | Commit Chain Atomic Teleport Contract                                                       |
 | RELAYER_COMMITCHAIN_RESOURCEREGISTRYCONTRACT | Commit Chain Resource Registry Contract                                              |
 | RELAYER_COMMITCHAIN_CCENDPOINTADDRESS      | Commit Chain Endpoint Address                                                               |
@@ -130,7 +137,7 @@ Please update the RELAYER_COMMITCHAIN variables before running the docker-compos
 ```yaml
 services:
   privacy-ledger:
-    image: registry.parfin.io/rayls-privacy-ledger:v1.8.5
+    image: registry.parfin.io/rayls-privacy-ledger:v1.8.6.1
     entrypoint: ["/app/var/start.sh"]
     volumes:
       - ./rayls/privacy-ledger/data:/app/data
@@ -168,6 +175,7 @@ services:
       - RELAYER_COMMITCHAIN_PARTICIPANTSTORAGECONTRACT=xxxxxxxxxxxxxxxxx
       - RELAYER_COMMITCHAIN_CHAINID=xxxxxxxxxxxxxxxxx
       - RELAYER_COMMITCHAIN_CCSTARTINGBLOCK=xxxxxxxxxxxxxxxxx
+      - RELAYER_COMMITCHAIN_CCATOMICREVERTSTARTINGBLOCK=xxxxxxxxxxxxxxxxx
       - RELAYER_COMMITCHAIN_VERSION=1.8"
       - RELAYER_COMMITCHAIN_ATOMICTELEPORTCONTRACT=xxxxxxxxxxxxxxxxx
       - RELAYER_COMMITCHAIN_RESOURCEREGISTRYCONTRACT=xxxxxxxxxxxxxxxxx
@@ -179,16 +187,16 @@ services:
       - privacy-ledger
 ```
 
-### Inicializando a Privacy Ledger e o Relayer
+#### Inicializando a Privacy Ledger
 
 Para inicializar a Privacy Ledger basta executar o comando abaixo:
 
-Privacy Ledger
 ```bash
 make up-privacy-ledger
 ```
 
-Este comando inicializará a Privacy Ledger e o Relayer:
+Este comando inicializará a Privacy Ledger:
+
 ```bash
  ✔ Container docker-privacy-ledger-1    Started
 ```
@@ -200,7 +208,10 @@ INFO [05-29|13:51:15.556] Looking for peers  peercount=0 tried=8 static=0
 ```
 Após isso basta interromper a execução dos logs utilizando o comando `ctrl + c`
 
-Após verificar que a Privacy Ledger está totalmente operacional execute o Relayer:
+#### Inicializando o Relayer
+
+Após verificar que a Privacy Ledger está totalmente operacional execute o Relayer
+
 ```bash
 make up-relayer
 ```
@@ -228,17 +239,12 @@ Os logs do container serão exibidos automaticamente no terminal, o resultado es
 ```
 Após isso basta interromper a execução dos logs utilizando o comando `ctrl + c`
 
-Para visualizar os logs dos containers executar os seguinte comando:
-```bash
-docker logs docker-privacy-ledger-1 -f
-docker logs docker-relayer-1 -f
-```
-
 ### FAQ:
 
 #### Como verifico os comandos disponíveis neste projeto?
 
 Para verificar os comandos disponíveis basta rodar o comando `make help`
+
 ```bash
 init                - Initialize the participant. Example: make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
 destroy-rayls       - Destroy the Rayls directory
@@ -252,4 +258,13 @@ up-relayer          - Start the Relayer
 down-privacy-ledger - Start the Privacy ledger
 down-relayer        - Start the Relayer
 down-rayls          - Stop the Privacy Ledger, Relayer and remove orphans
+```
+
+#### Como verifico os logs dos containers:
+
+Para visualizar os logs dos containers basta executar os seguintes comandos:
+
+```bash
+docker logs docker-privacy-ledger-1 -f
+docker logs docker-relayer-1 -f
 ```
