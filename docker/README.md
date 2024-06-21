@@ -4,13 +4,21 @@
 
 Para que os componentes dos participantes do Drex possam utilizar a Rayls, é necessário:
 
-- Acesso ao repositório da Parfin (registry.parfin.io)
+- Acesso ao repositório piloto_rd_setup.
+- Acesso ao registry da Parfin (registry.parfin.io)
 - WSL/Sistema operacional Linux
 - [Make](https://www.gnu.org/software/make/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
+
+### Clonar Repositorio
+
+- Faça clone do repositório piloto_rd_setup.
+```bash
+git clone https://github.com/raylsnetwork/piloto_rd_setup.git
+```
 
 ### MongoDB
 
@@ -30,7 +38,7 @@ Essa imagem está disponível em `registry.parfin.io/mongo6_rs:latest`
 > Reforçamos que essa imagem estará disponível no repositório somente enquanto durarem os testes do Drex e que não deve ser utilizada em produção. A Parfin não se responsabiliza pelo suporte no Mongo ou caso ocorra alguma perda de dados relacionada a essa imagem.
 
 
-Caso queria utilizar essa imagem basta executar o seguinte comando: 
+Caso queria utilizar essa imagem basta acessar a pasta docker e executar o seguinte comando: 
 
 ```bash
 cd docker
@@ -74,7 +82,7 @@ docker login registry.parfin.io
 >
 > Caso esteja utilizando um cluster provisionado (MongoDB Atlas), utilize o seguinte padrão `mongodb+srv://username:password@endpoint`
 
-Para criar os diretórios e arquivos de configuração basta executar o seguinte comando:
+Para criar os diretórios e arquivos de configuração basta acessar a pasta docker e executar o seguinte comando:
 ```bash
 cd docker
 make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'

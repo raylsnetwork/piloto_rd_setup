@@ -2,7 +2,8 @@
 
 ## Pré-requisitos
 
-- Acesso ao repositório da Parfin (registry.parfin.io)
+- Acesso ao repositório piloto_rd_setup.
+- Acesso ao registry da Parfin (registry.parfin.io)
 - [Kubernetes](https://kubernetes.io/docs/setup/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
@@ -29,6 +30,13 @@ kubectl create namespace <namespace>
 
 ```bash
 kubectl create secret docker-registry registry-parfin-io --docker-server=registry.parfin.io --docker-username=xxxxx --docker-password=xxxxx --namespace=xxxxx
+```
+
+### Clonar Repositorio
+
+- Faça clone do repositório piloto_rd_setup.
+```bash
+git clone https://github.com/raylsnetwork/piloto_rd_setup.git
 ```
 
 ### MongoDB
