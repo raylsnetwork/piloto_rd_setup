@@ -32,6 +32,13 @@ kubectl create namespace <namespace>
 kubectl create secret docker-registry registry-parfin-io --docker-server=registry.parfin.io --docker-username=xxxxx --docker-password=xxxxx --namespace=xxxxx
 ```
 
+### Clonar Repositorio
+
+- Faça clone do repositório piloto_rd_setup.
+```bash
+git clone https://github.com/raylsnetwork/piloto_rd_setup.git
+```
+
 ### MongoDB
 
 Tanto a Rayls Privacy Ledger quanto a Rayls Relayer necessitam de um cluster MongoDB com Replica Set configurado. Se não houver instalação do MongoDB com Replica Set, nem possibilidade de instalar ou usar o MongoDB Atlas, a Parfin oferece uma imagem de container do MongoDB 6 com Replica Set inicializado para o período de testes do Drex.
