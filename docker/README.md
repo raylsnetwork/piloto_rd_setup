@@ -117,7 +117,8 @@ Please update the RELAYER_COMMITCHAIN variables before running the docker-compos
 
 ### Docker Compose
 
-- Após a [Criação dos diretórios e arquivos de configuração](#criação-dos-diretórios-e-arquivos-de-configuração), será necessário atualizar as seguintes variáveis: 
+- Após a [Criação dos diretórios e arquivos de configuração](#criação-dos-diretórios-e-arquivos-de-configuração), será necessário atualizar as seguintes variáveis no arquivo docker-compose.yml localizado na pasta "docker".
+
 
 | Variável                                     | Descrição                                                                                   |
 |----------------------------------------------|---------------------------------------------------------------------------------------------|
