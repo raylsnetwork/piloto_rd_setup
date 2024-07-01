@@ -68,9 +68,9 @@ REPLICA SET ONLINE
 
 #### Importante
 
-- O container do mongo persistirá os dados no diretório ./rayls/mongodb/data
+- O container do mongo persistirá os dados no diretório ./mongodb/data
 - Para pausar o cluster MongoDB, basta executar o comando make down-mongob
-    - Este comando não irá remover os dados persistidos no diretório  ./rayls/mongodb/data, para remover basta executar o comando sudo rm -rf ./rayls/mongodb/data
+    - Este comando não irá remover os dados persistidos no diretório  ./mongodb/data, para remover basta executar o comando sudo rm -rf ./mongodb/data
 - É essencial que o MongoDB esteja operacional para inicializar a Rayls Network
 
 
@@ -94,7 +94,7 @@ cd docker
 make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
 ```
 
-- Este comando irá configurar todos os diretórios necessários para inicializarmos a Privacy Ledger e Relayer.
+- Este comando irá configurar todos os diretórios necessários para inicializarmos a Privacy Ledger e Relayer. Segue exemplo do output gerado.
 
 ```bash
 Directories created:
@@ -136,7 +136,7 @@ CHAINID was updated in the following files:
 ```yaml
 services:
   privacy-ledger:
-    image: registry.parfin.io/rayls-privacy-ledger:v1.8.6.1
+    image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
     entrypoint: ["/app/var/start.sh"]
     volumes:
       - ./rayls/privacy-ledger/data:/app/data
@@ -155,7 +155,7 @@ services:
       timeout: 10s
       retries: 5
   relayer:
-      image: registry.parfin.io/rayls-relayer:v1.8.5
+      image: registry.parfin.io/rayls-relayer:v1.8.6.1
       entrypoint: ["/app/raylz-relayer", "run", "--config", "/app/var/empty-config.json"]
       volumes:
        - ./rayls/relayer/var/config.json:/app/var/empty-config.json:ro
@@ -237,6 +237,8 @@ Os logs do container serão exibidos automaticamente no terminal, o resultado es
 [14:22:12 2024-05-29] INFO: 📝 Endpoint Address from Private Ledger  | ADDRESS=0xExEMPL0AFa067aCC9EXAMPLE6C382282bEXAMPL1
 ```
 Após isso basta interromper a execução dos logs utilizando o comando `ctrl + c`
+
+> ⚠️ Importante armazenar os valores do `Endpoint Address from Privacy Ledger`.
 
 ### FAQ:
 
