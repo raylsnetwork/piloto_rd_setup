@@ -94,7 +94,7 @@ cd docker
 make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
 ```
 
-- Este comando irá configurar todos os diretórios necessários para inicializarmos a Privacy Ledger e Relayer. O próprio output do terminal irá detalhar os próximos passos:
+- Este comando irá configurar todos os diretórios necessários para inicializarmos a Privacy Ledger e Relayer.
 
 ```bash
 Directories created:
@@ -111,8 +111,6 @@ Files created:
 CHAINID was updated in the following files:
 ./rayls/privacy-ledger/var/genesis.json
 ./rayls/privacy-ledger/var/start.sh
-
-Please update the RELAYER_COMMITCHAIN variables before running the docker-compose file.
 ```
 
 ### Docker Compose
