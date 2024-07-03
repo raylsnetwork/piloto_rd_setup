@@ -7,11 +7,14 @@ Para que os componentes dos participantes do Drex possam utilizar a Rayls, é ne
 - Acesso ao repositório piloto_rd_setup.
 - Acesso ao registry da Parfin (registry.parfin.io)
 - WSL/Sistema operacional Linux
+- ChainID que foi disponibilizado previamente pelo Banco Central
 - [Make](https://www.gnu.org/software/make/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
+
+Caso tenha alguma dúvida, na [FAQ](#faq) abaixo estão descritos os comandos para checar se os componentes estão instalados e quais as versões dos mesmos 
 
 ### Clonar Repositorio
 
@@ -91,7 +94,7 @@ Para criar os diretórios e arquivos de configuração basta acessar a pasta doc
 
 ```bash
 cd docker
-make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint'
+make init CHAINID=xxxxxxxxxx MONGODB_CONNECTION_STRING='xxxxxxxxxx'
 ```
 
 - Este comando irá configurar todos os diretórios necessários para inicializarmos a Privacy Ledger e Relayer. Segue exemplo do output gerado.
@@ -240,7 +243,15 @@ Após isso basta interromper a execução dos logs utilizando o comando `ctrl + 
 
 > ⚠️ Importante armazenar os valores do `Endpoint Address from Privacy Ledger`.
 
-### FAQ:
+### FAQ
+
+#### Comandos para verificar os pré requisitos e as versões instaladas
+
+Linux: `uname -a` -> Este comando irá exibir a versão do Sistema Operacional e informações do Kernel
+git: `git --version` -> Este comando irá exibir a versão do git instalada. Se não estiver será retornado um erro dizendo que o git não foi encontrado
+make: `make --version` -> Este comando irá exibir a versão do make instalada. Se não estiver será retornado um erro dizendo que o make não foi encontrado
+docker: `docker --version` -> Este comando irá exibir a versão do docker instalada. Se não estiver será retornado um erro dizendo que o docker não foi encontrado
+docker compose: `docker compose version` -> Este comando irá exibir a versão do docker compose instalada. Se não estiver será retornado um erro dizendo que o docker compose não foi encontrado
 
 #### Como verifico os comandos disponíveis neste projeto?
 
