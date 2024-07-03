@@ -90,7 +90,7 @@ docker login registry.parfin.io
 >
 > Caso esteja utilizando um cluster provisionado (MongoDB Atlas), utilize o seguinte padrão `mongodb+srv://username:password@endpoint`
 
-Para criar os diretórios e arquivos de configuração basta acessar a pasta docker e executar o seguinte comando:
+Para criar os diretórios e arquivos de configuração basta acessar a pasta docker e executar o seguinte comando (substituindo os valores que estão com 'xxxxxxxxxx' pela ChainID passada anteriormente pelo Bacen e a connection string do MongoDB):
 
 ```bash
 cd docker
