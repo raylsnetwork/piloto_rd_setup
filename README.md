@@ -5,7 +5,7 @@ Nesta guia, você tera uma visão geral de como instalar a Rayls Network utiliza
 ## Setup Docker
 
 1. [Pré-requisitos](./docker/README.md#pré-requisitos)
-2. [Instalação a Rayls utilizando Docker Compose](./docker/README.md#instalação-utilizando-docker-compose)
+2. [Instalando o ambiente Rayls](./docker/README.md#instalando-o-ambiente-rayls)
 
 ## Setup Kubernetes
 

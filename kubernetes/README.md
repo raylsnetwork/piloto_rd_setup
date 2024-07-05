@@ -92,10 +92,10 @@ Para outras abordagens relacionadas a persistência de dados do Kubernetes, segu
 
 | Variável                                     | Descrição                                                                                   |
 |----------------------------------------------|---------------------------------------------------------------------------------------------|
-| MONGODB_CONN                                 | Connection String do MongoDB. Exemplo: `mongodb+srv://<username>:<password>@<endpoint>`     |
+| MONGODB_CONN                                 | Connection String do MongoDB. Exemplo: `mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0`     |
 | NETWORKID                                    | `CHAIN_ID` da Privacy Ledger                                                                |
 
-> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb://<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
+> ℹ️ Caso esteja utilizando um MongoDB gerenciado (Atlas), a string de conexão `MONGODB_CONN` deverá ser `mongodb+srv://<username>:<password>@<endpoint>` 
 
 ```yaml
 apiVersion: apps/v1
@@ -128,6 +128,10 @@ spec:
           image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
+          resources:
+            limits:
+              cpu: "4"
+              memory: "6Gi"
           ports:
             - containerPort: 80
               name: 80tcp
@@ -150,9 +154,9 @@ spec:
             - name: MINER_ETHERBASE
               value: "0x1bE478ee83095aF7F21bd84743fB39B68Dd600A6"
             - name: NETWORKID
-              value: "change_me"
+              value: "xxxxxxxxxxx"
             - name: MONGODB_CONN
-              value: "mongodb+srv://username:password@endpoint"
+              value: "mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0"
           volumeMounts:
             - mountPath: /app/var
               name: config
@@ -227,6 +231,58 @@ data:
         }
       }
     }
+  config.toml: |
+    [Eth]
+    RPCGasCap = 9000000000000
+
+    [Eth.Ethash]
+    DisallowBlockCreation = true
+    CacheDir = "ethash"
+    CachesInMem = 2
+    CachesOnDisk = 3
+    CachesLockMmap = false
+    DatasetDir = "/app/data/raylz-private-ledger/.ethash"
+    DatasetsInMem = 1
+    DatasetsOnDisk = 2
+    DatasetsLockMmap = false
+    PowMode = 0
+    NotifyFull = false
+  start.sh: |-
+    #!/bin/sh
+
+    /app/raylz-private-ledger \
+    --http \
+    --http.vhosts='*' \
+    --http.addr="0.0.0.0" \
+    --http.api="net,web3,eth,debug,txpool" \
+    --http.port 8545 \
+    --http.corsdomain '*' \
+    --ipcdisable \
+    --ws \
+    --ws.addr="0.0.0.0" \
+    --ws.port 8660 \
+    --ws.api eth,net,web3 \
+    --ws.origins '*' \
+    --datadir "${DATADIR}" \
+    --networkid "${NETWORKID}" \
+    --mine \
+    --miner.threads=1 \
+    --miner.etherbase="${MINER_ETHERBASE}" \
+    --metrics \
+    --pprof \
+    --metrics.addr 0.0.0.0 \
+    --metrics.port 6080 \
+    --pprof.addr 0.0.0.0  \
+    --rpc.gascap 0 \
+    --gcmode "archive" \
+    --syncmode=full \
+    --miner.gasprice 0 \
+    --port 30309 \
+    --config /app/var/config.toml \
+    --db.engine mongodb \
+    --db.engine.host "${MONGODB_CONN}" \
+    --db.engine.name="${MONGODB_DATABASE}" \
+    /app/var/genesis.json
 ```
 
 4. Execute os manifestos da pasta `kubernetes/rayls/privacy-ledger`
@@ -248,24 +304,14 @@ INFO [05-29|13:51:15.556] Looking for peers  peercount=0 tried=8 static=0
 
 | Variável                                     | Descrição                                                                         |
 |----------------------------------------------|-----------------------------------------------------------------------------------|
-| Database.ConnectionString                |Connection String do MongoDB. Exemplo: `mongodb+srv://<username>:<password>@<endpoint>`|
+| Database.ConnectionString                |Connection String do MongoDB. Exemplo: `mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0`|
 | Blockchain.ChainId                       | `CHAIN_ID` da Privacy Ledger                                                          |
 | Blockchain.ChainURL                      | URL RPC da Privacy Ledger                                                             |
 | Blockchain.ChainWSURL                    | URL WebSocket da Privacy Ledger                                                       |
 | CommitChain.ChainURL                     | URL RPC da Commit Chain                                                               |
 | CommitChain.ChainWSUrl                   | URL Web Socket da Commit Chain                                                        |
-| CommitChain.CommitChainPLStorageContract | Commit Chain Privacy Ledger Storage Contract                                          |
-| CommitChain.ParticipantStorageContract   | Participant Storage Contract                                                          |
-| CommitChain.ChainId                      | ChainID da Commit Chain                                                               |
-| CommitChain.CcStartingBlock              | Commit Chain Starting Block                                                           |
-| CommitChain.CcAtomicRevertStartingBlock  | Deverá ser o mesmo valor do Commit Chain Starting Block   
-| CommitChain.AtomicTeleportContract       | Commit Chain Atomic Teleport Contract                                                 |
-| CommitChain.ResourceRegistryContract     | Commit Chain Resource Registry Contract                                               |
-| CommitChain.CcEndpointAddress            | Commit Chain Endpoint Address                                                         |
-| CommitChain.BalanceCommitmentContract    | Commit Chain Balance Commitment Contract                                              |
-| CommitChain.TokenRegistryContract        | Commit Chain Token Registry Contract 
 
-> ℹ️ Caso esteja utilizando a imagem disponibilizada pela Parfin, a string de conexão `MONGODB_CONN` deverá ser `mongodb:/<mongodb-service-endpoint>:27017/admin?directConnection=true&replicaSet=rs0`
+> ℹ️ Caso esteja utilizando um MongoDB gerenciado (Atlas), a string de conexão `MONGODB_CONN` deverá ser `mongodb+srv://<username>:<password>@<endpoint>` 
 
 ```yaml
 apiVersion: v1
@@ -276,12 +322,12 @@ data:
   config.json: |
     {
       "Database": {
-        "ConnectionString": "mongodb+srv://username:password@endpoint",
+        "ConnectionString": "mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0",
         "Name": "rayls-relayer",
         "Type": "mongodb"
       },
       "Blockchain": {
-        "ChainID": "xxxxxxxxxx",
+        "ChainID": "xxxxxxxxxxxx",
         "ChainURL": "http://rayls-privacy-ledger:8545",
         "ChainWSURL": "ws://rayls-privacy-ledger:8660",
         "BatchSize": 1000,
@@ -290,17 +336,17 @@ data:
       "CommitChain": {
         "ChainURL": "xxxxxxxxxxxxx",
         "ChainWSUrl": "xxxxxxxxxxx",
-        "CommitChainPLStorageContract": "xxxxxxxxxxxxx",
-        "ParticipantStorageContract": "xxxxxxxxxxxxx8",
-        "ChainId": "xxxxxxxxxxxxx",
-        "CcStartingBlock": xxxxxxxxxxxxx,
-        "CcAtomicRevertStartingBlock": "xxxxxxxxxxxxx",
+        "CommitChainPLStorageContract": "0x4066b405B6FD10798b7c310C1aa77b351aAC6B8C",
+        "ParticipantStorageContract": "0x8863d38A64D5B59F5208b163801e60dEb9eB9AD5",
+        "ChainId": "381660001",
+        "CcStartingBlock": 5966146,
+        "CcAtomicRevertStartingBlock": "5966146",
         "Version": "1.8.6.2",
-        "AtomicTeleportContract": "xxxxxxxxxxxxx",
-        "ResourceRegistryContract": "xxxxxxxxxxxxx",
-        "CcEndpointAddress": "xxxxxxxxxxxxx",
-        "BalanceCommitmentContract": "xxxxxxxxxxxxx",
-        "TokenRegistryContract": "xxxxxxxxxxxxx",
+        "AtomicTeleportContract": "0x27A7DB9E328E68F1ab2cF86Bc803Ee4cF264fffc",
+        "ResourceRegistryContract": "0xc44f4350544F3E075b11243fcf83A864d575c0c7",
+        "CcEndpointAddress": "0x6928638433Dd9116A4A02b0813E1B19723C9f8F6",
+        "BalanceCommitmentContract": "0xC7f7f47800d510B22DB2e9c1e3090c0E4B51Cc30",
+        "TokenRegistryContract": "0x06585a6C01f9bcD21dE797479fdCBaFAc6c161b2",
         "OperatorChainId": "999"
       }
     }

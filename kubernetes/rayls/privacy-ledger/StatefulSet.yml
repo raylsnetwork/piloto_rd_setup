@@ -28,6 +28,10 @@ spec:
           image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
+          resources:
+            limits:
+              cpu: "4"
+              memory: "6Gi"
           ports:
             - containerPort: 80
               name: 80tcp
@@ -50,9 +54,9 @@ spec:
             - name: MINER_ETHERBASE
               value: "0x1bE478ee83095aF7F21bd84743fB39B68Dd600A6"
             - name: NETWORKID
-              value: "change_me"
+              value: "xxxxxxxxxxx"
             - name: MONGODB_CONN
-              value: "mongodb+srv://username:password@endpoint"
+              value: "mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0"
           volumeMounts:
             - mountPath: /app/var
               name: config

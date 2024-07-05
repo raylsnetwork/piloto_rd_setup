@@ -18,8 +18,8 @@ spec:
           command: ["/app/raylz-relayer", "run", "--config", "/app/var/config.json"]
           resources:
             limits:
-              cpu: "1"
-              memory: "1Gi"
+              cpu: "4"
+              memory: "4Gi"
           volumeMounts:
             - mountPath: /app/var
               name: config
