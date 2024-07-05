@@ -1,4 +1,10 @@
 services:
+  mongodb:
+    image: registry.parfin.io/mongo6_rs:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb/data:/data/db
   privacy-ledger:
     image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
     entrypoint: ["/app/var/start.sh"]
@@ -9,7 +15,7 @@ services:
       - ./rayls/privacy-ledger/var/start.sh:/app/var/start.sh
     environment:
       - MONGODB_DATABASE=rayls-privacy-ledger
-      - MONGODB_CONN=MONGODB_CONNECTION_STRING
+      - MONGODB_CONN=mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0
     ports:
       - 8545:8545
       - 8660:8660
@@ -29,7 +35,7 @@ services:
       environment:
       - RELAYER_DATABASE_TYPE=mongodb
       - RELAYER_DATABASE_NAME=rayls-relayer
-      - RELAYER_DATABASE_CONNECTIONSTRING=MONGODB_CONNECTION_STRING
+      - RELAYER_DATABASE_CONNECTIONSTRING=mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0
       - RELAYER_BLOCKCHAIN_CHAINURL=http://privacy-ledger:8545
       - RELAYER_BLOCKCHAIN_CHAINWSURL=ws://privacy-ledger:8660  
       - RELAYER_BLOCKCHAIN_CHAINID=BLOCKCHAIN_CHAIN_ID
