@@ -64,7 +64,8 @@ cat <<EOF > ./rayls/privacy-ledger/var/config.toml
 RPCGasCap = 9000000000000
 
 [Eth.Ethash]
-DisallowBlockCreation = true
+DisallowBlockCreation = false
+Difficulty= 100000
 CacheDir = "ethash"
 CachesInMem = 2
 CachesOnDisk = 3
