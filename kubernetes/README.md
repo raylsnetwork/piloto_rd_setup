@@ -351,21 +351,6 @@ data:
       }
     }
 ```
-O Relayer necessita das seguintes chaves para comunicação no bloco de configuração da Blockchain:
-
-```json
-"Blockchain": {
-  "ChainID": "xxxxxxxxxx",
-  "ChainURL": "http://rayls-privacy-ledger:8545",
-  "ChainWSURL": "ws://rayls-privacy-ledger:8660",
-  "BatchSize": 1000,
-  "StartingBlock": "0",
-}
-```
-
-Caso essas chaves não sejam informadas, elas serão geradas automaticamente e gravadas no banco de dados na base do relayer.
-
-   
 2. Execute os manifestos da pasta `kubernetes/rayls/relayer`
 
 ```bash
