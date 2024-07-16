@@ -26,7 +26,7 @@ kubectl create namespace <namespace>
 
 > **⚠️ Atenção:**
 >
-> Essas credenciais serão concedidas por TBD.
+> Para solicitar essas credenciais, por favor entrar em contato através do e-mail drex-support@parfin.io.
 
 ```bash
 kubectl create secret docker-registry registry-parfin-io --docker-server=registry.parfin.io --docker-username=xxxxx --docker-password=xxxxx --namespace=xxxxx
@@ -360,9 +360,6 @@ O Relayer necessita das seguintes chaves para comunicação no bloco de configur
   "ChainWSURL": "ws://rayls-privacy-ledger:8660",
   "BatchSize": 1000,
   "StartingBlock": "0",
-  "DhSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "DhPublic": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "PrivateKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }
 ```
 
