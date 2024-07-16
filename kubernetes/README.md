@@ -50,7 +50,7 @@ Essa imagem está disponível em `registry.parfin.io/mongo6_rs:latest`
 > Reforçamos que essa imagem estará disponível no repositório somente enquanto durarem os testes do Drex e que não deve ser utilizada em produção. A Parfin não se responsabiliza pelo suporte no Mongo ou caso ocorra alguma perda de dados relacionada a essa imagem.
 
 
-> ℹ️ No diretório ./kubernetes/dependencies está disponível um manifesto para o MongoDB. O objetivo deste manifesto é facilitar a implementação de um servidor PostgreSQL caso não tenha um servidor gerenciado.
+> ℹ️ No diretório ./kubernetes/dependencies está disponível um manifesto para o MongoDB. O objetivo deste manifesto é facilitar a implementação de um MongoDB.
 
 Caso queira utilizar essa imagem basta executar o seguinte comando: 
 
