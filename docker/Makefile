@@ -1,17 +1,21 @@
-.PHONY: help up-rayls down-rayls down destroy-rayls destroy-all 
+.PHONY: help up up-rayls down-rayls down destroy-rayls destroy-all 
 
 help:
-	@echo "up-rayls       - Start the Privacy Ledger, Relayer"
-	@echo "down-rayls     - Stop the Privacy Ledger, Relayer and remove orphans"
-	@echo "down           - Stop all services and remove orphans"
-	@echo "destroy-rayls  - Destroy the Rayls directory"
-	@echo "destroy-all    - Destroy the Rayls directory, Mongodb directory and Docker Compose file"
+	@echo "up            - Start all services"
+	@echo "up-rayls      - Start and configure the Privacy Ledger and Relayer"
+	@echo "down-rayls    - Stop the Privacy Ledger, Relayer and remove orphans"
+	@echo "down          - Stop all services and remove orphans"
+	@echo "destroy-rayls - Destroy the Rayls directory"
+	@echo "destroy-all   - Destroy the Rayls directory, Mongodb directory and Docker Compose file"
 
 up-rayls:
 	@chmod +x ./init.sh && ./init.sh $(CHAINID) $(MONGODB_CONNECTION_STRING) ${COMMIT_CHAIN_RPC_URL} ${COMMIT_CHAIN_WS_URL}
 
 down-rayls:
 	@docker compose down privacy-ledger relayer --remove-orphans
+
+up:
+	@docker compose up -d
 
 down:
 	@docker compose down --remove-orphans
