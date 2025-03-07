@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: rayls-relayer
-          image: registry.parfin.io/rayls-relayer:v1.8.6.1
+          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-relayer:v1.8.6.1
           command: ["/app/raylz-relayer", "run", "--config", "/app/var/config.json"]
           resources:
             limits:
@@ -28,5 +28,3 @@ spec:
            configMap:
              defaultMode: 0700
              name: rayls-relayer
-      imagePullSecrets:
-        - name: registry-parfin-io

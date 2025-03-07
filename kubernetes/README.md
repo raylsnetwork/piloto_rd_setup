@@ -20,18 +20,6 @@
 kubectl create namespace <namespace>
 ```
 
-### Adicionando as credenciais no cluster Kubernetes (opcional)
-
-- Crie a secret que concederá acesso ao registry.parfin.io. Caso seu cluster tenha acesso ao registry ou esteja utilizando um repositório interno, esse passo é opcional. 
-
-> **⚠️ Atenção:**
->
-> Para solicitar essas credenciais, por favor entrar em contato através do e-mail drex-support@parfin.io.
-
-```bash
-kubectl create secret docker-registry registry-parfin-io --docker-server=registry.parfin.io --docker-username=xxxxx --docker-password=xxxxx --namespace=xxxxx
-```
-
 ### Clonar Repositorio
 
 - Faça clone do repositório piloto_rd_setup.
@@ -125,7 +113,7 @@ spec:
             claimName: rayls-privacy-ledger-pvc
       containers:
         - name: rayls-privacy-ledger
-          image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
+          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
           resources:
@@ -163,8 +151,6 @@ spec:
               readOnly: true
             - mountPath: /app/data
               name: persistent-storage
-      imagePullSecrets:
-        - name: registry-parfin-io
 ```
 
 2. Alterar a capacidade de disco da Privacy Ledger nos manifestos PersistentVolume.yml e PersistentVolumeClaim
