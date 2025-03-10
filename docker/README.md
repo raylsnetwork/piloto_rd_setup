@@ -5,7 +5,6 @@
 Para que os componentes dos participantes do Drex possam utilizar a Rayls, é necessário:
 
 - Acesso ao repositório piloto_rd_setup.
-- Acesso ao registry da Parfin (registry.parfin.io)
 - WSL/Sistema operacional Linux
 - ChainID que foi disponibilizado previamente pelo Banco Central
 - [Make](https://www.gnu.org/software/make/)
@@ -63,12 +62,7 @@ db.secrets.find()
 
 ### Instalação
 
-1. Realizar login no registry da Parfin:
-```bash
-docker login registry.parfin.io
-```
-
-2. Para inicializar o ambiente Rayls com MongoDB local basta utilizar o seguinte comando:
+1. Para inicializar o ambiente Rayls com MongoDB local basta utilizar o seguinte comando:
 
 #### Inicializando a Rayls utilizando MongoDB local
 ```bash

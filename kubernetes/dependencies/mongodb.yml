@@ -44,14 +44,12 @@ spec:
             claimName: mongodb-pvc
       containers:
         - name: mongodb
-          image: registry.parfin.io/mongo6_rs:latest
+          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-mongors:latest
           volumeMounts:
             - name: mongodb-data
               mountPath: /data/db
           ports:
             - containerPort: 27017
-      imagePullSecrets:
-        - name: registry-parfin-io
 ---
 apiVersion: v1
 kind: Service

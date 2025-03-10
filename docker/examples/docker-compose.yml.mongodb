@@ -1,12 +1,12 @@
 services:
   mongodb:
-    image: registry.parfin.io/mongo6_rs:latest
+    image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-mongors:latest
     ports:
       - "27017:27017"
     volumes:
       - ./mongodb/data:/data/db
   privacy-ledger:
-    image: registry.parfin.io/rayls-privacy-ledger:v1.8.6
+    image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-privacy-ledger:v1.8.6
     entrypoint: ["/app/var/start.sh"]
     volumes:
       - ./rayls/privacy-ledger/data:/app/data
@@ -20,7 +20,7 @@ services:
       - 8545:8545
       - 8660:8660
   relayer:
-      image: registry.parfin.io/rayls-relayer:v1.8.6.1
+      image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-relayer:v1.8.6.1
       entrypoint: ["/app/raylz-relayer", "run", "--config", "/app/var/empty-config.json"]
       volumes:
        - ./rayls/relayer/var/config.json:/app/var/empty-config.json:ro
