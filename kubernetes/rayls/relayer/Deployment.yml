@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: rayls-relayer
-          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-relayer:v1.8.6.1
+          image: public.ecr.aws/rayls/rayls-relayer:v1.8.6.1
           command: ["/app/raylz-relayer", "run", "--config", "/app/var/config.json"]
           resources:
             limits:

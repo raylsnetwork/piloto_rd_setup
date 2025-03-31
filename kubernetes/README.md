@@ -113,7 +113,7 @@ spec:
             claimName: rayls-privacy-ledger-pvc
       containers:
         - name: rayls-privacy-ledger
-          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-privacy-ledger:v1.8.6
+          image: public.ecr.aws/rayls/rayls-privacy-ledger:v1.8.6
           imagePullPolicy: Always
           command: ["/app/var/start.sh"]
           resources:

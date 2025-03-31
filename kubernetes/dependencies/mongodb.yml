@@ -44,7 +44,7 @@ spec:
             claimName: mongodb-pvc
       containers:
         - name: mongodb
-          image: us-east1-docker.pkg.dev/rayls-public/rayls/rayls-mongors:latest
+          image: public.ecr.aws/rayls/rayls-mongors:latest
           volumeMounts:
             - name: mongodb-data
               mountPath: /data/db
