@@ -1,0 +1,163 @@
+global:
+  # -- Domain for the project.
+  project:
+    # -- Name of the project.
+    name: rayls
+
+# -- Secrets for pulling images from private registries.
+imagePullSecrets: []
+
+# -- Override the name of the chart.
+nameOverride: ""
+
+# -- Override the full name of the chart.
+fullnameOverride: ""
+
+relayer:
+  # -- Enable or disable the relayer.
+  enabled: true
+  image:
+    # -- Repository of the relayer Docker image.
+    repository: public.ecr.aws/rayls/rayls-relayer
+    # -- Pull policy for the relayer Docker image.
+    pullPolicy: IfNotPresent
+    # -- Tag of the relayer Docker image.
+    tag: v2.3.1
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  env:
+    BLOCKCHAIN_DATABASE_TYPE: "mongodb"
+    BLOCKCHAIN_KMS_OPERATION_SERVICE_ROOT_URL: "http://<release-relayer>-kmm-svc:8080"
+    BLOCKCHAIN_CHAINID: 123456789
+    BLOCKCHAIN_CHAINURL: "http://<release-privacy-ledger>-svc:8545"
+    BLOCKCHAIN_PLSTARTINGBLOCK: "0"
+    BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES: "500"
+    BLOCKCHAIN_PLENDPOINTADDRESS: "0x0000000000000000000000000000000000000000"
+    BLOCKCHAIN_LISTENER_BATCH_BLOCKS: "50"
+    BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES: "200"
+    BLOCKCHAIN_ENYGMA_PROOF_API_ADDRESS: "http://<release-relayer>-circomapi-svc:3000"
+    BLOCKCHAIN_ENYGMA_PL_EVENTS: "0x0000000000000000000000000000000000000000"
+    BLOCKCHAIN_DATABASE_CONNECTION_STRING: "mongodb://<mongodb-release-name>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
+    COMMITCHAIN_CHAINURL: "http://commitchain.example.com:8545"
+    COMMITCHAIN_VERSION: "2.0"
+    COMMITCHAIN_CHAINID: "999990001"
+    COMMITCHAIN_CCSTARTINGBLOCK: "1990335"
+    COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK: "1990335"
+    COMMITCHAIN_OPERATORCHAINID: "999"
+    COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY: "0x9bfe7a23fC8882D7A692d959C89c0c2A7266bfED"
+    COMMITCHAIN_CCENDPOINTMAXBATCHMESSAGES: "500"
+    COMMITCHAIN_EXPIRATIONREVERTTIMEINMINUTES: "30"
+    LOG_LEVEL: "Info"
+    LOG_HANDLER: "Text"
+    KMS_CORSDOMAIN: "*"
+    KMS_AWSPROFILE: "xxx"
+    KMS_AWSALIAS: "xxx"
+    KMS_GCPPROJECT: "xxx"
+    KMS_GCPLOCATION: "xxx"
+    KMS_GCPKEYRING: "xxx"
+    KMS_GCPCRYPTOKEY: "xxx"
+    KMS_ENCRYPTORSERVICE: "plaintext"
+    BLOCKCHAIN_KMS_API_KEY: ""
+    BLOCKCHAIN_KMS_SECRET: ""
+    KMS_DATABASE_CONNECTIONSTRING: "mongodb://<mongodb-release-name>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
+    KMS_API_KEY: ""
+    KMS_SECRET: ""
+  envFromSecret: []
+  envFrom: []
+  resources:
+    enabled: true
+    requests:
+      memory: "1Gi"
+      cpu: 0.5
+    limits:
+      memory: "2Gi"
+      cpu: 1
+
+atomic:
+  image:
+    # -- Repository of the atomic service Docker image.
+    repository: public.ecr.aws/rayls/rayls-atomic-service
+    # -- Pull policy for the atomic service Docker image.
+    pullPolicy: IfNotPresent
+    # -- Tag of the atomic service Docker image.
+    tag: v2.3.1
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  envFromSecret: []
+  envFrom: []
+  resources:
+    enabled: true
+    requests:
+      memory: "1Gi"
+      cpu: 0.5
+    limits:
+      memory: "2Gi"
+      cpu: 1
+
+kmm:
+  image:
+    # -- Repository of the KMM Docker image.
+    repository: public.ecr.aws/rayls/rayls-kmm
+    # -- Pull policy for the KMM Docker image.
+    pullPolicy: IfNotPresent
+    # -- Tag of the KMM Docker image.
+    tag: v2.3.1
+  replicas: 1
+  EnvFrom: []
+  service:
+    # -- Type of the KMM service.
+    type: ClusterIP
+    # -- Port of the KMM service.
+    port: 8080
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: 0.5
+    limits:
+      memory: "2Gi"
+      cpu: 1
+
+circomApi:
+  # -- Enable or disable the Circom API.
+  enabled: true
+  image:
+    # -- Repository of the Circom API Docker image.
+    repository: public.ecr.aws/rayls/rayls-circom-api
+    # -- Pull policy for the Circom API Docker image.
+    pullPolicy: IfNotPresent
+    # -- Tag of the Circom API Docker image.
+    tag: v2.3.1
+  replicas: 1
+  EnvFrom: []
+  service:
+    # -- Type of the Circom API service.
+    type: ClusterIP
+    # -- Port of the Circom API service.
+    port: 3000
+  resources:
+    enabled: true
+    requests:
+      memory: "1Gi"
+      cpu: 0.5
+    limits:
+      memory: "2Gi"
+      cpu: 1
+
+serviceAccount:
+  # -- Create a service account.
+  create: true
+  # -- Annotations for the service account.
+  annotations: {}
+  # -- Name of the service account.
+  name: ""
+
+# -- Node selector for scheduling pods.
+nodeSelector: {}
+
+# -- Tolerations for scheduling pods.
+tolerations: []
+
+# -- Affinity rules for scheduling pods.
+affinity: {}

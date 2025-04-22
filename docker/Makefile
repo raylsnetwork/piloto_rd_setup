@@ -1,24 +1,40 @@
-.PHONY: help up up-rayls down-rayls down destroy-rayls destroy-all 
+.PHONY: help up-mongodb up-privacy-ledger deploy-privacy-ledger up-relayer up down destroy-rayls destroy-mongodb destroy-all
 
 help:
-	@echo "up            - Start all services"
-	@echo "up-rayls      - Start and configure the Privacy Ledger and Relayer"
-	@echo "down-rayls    - Stop the Privacy Ledger, Relayer and remove orphans"
-	@echo "down          - Stop all services and remove orphans"
-	@echo "destroy-rayls - Destroy the Rayls directory"
-	@echo "destroy-all   - Destroy the Rayls directory, Mongodb directory and Docker Compose file"
+	@echo "up-mongodb            - Start the mongodb service"
+	@echo "up-privacy-ledger     - Start the privacy-ledger and mongodb services"
+	@echo "deploy-privacy-ledger - Deploy the privacy-ledger contracts"
+	@echo "up-relayer            - Start the relayer service, kmm, atomic and circom-api"
+	@echo "up                    - Start all services"
+	@echo "down                  - Stop all services and remove orphans"
+	@echo "destroy-rayls         - Destroy the Rayls directory"
+	@echo "destroy-all           - Destroy the Rayls and Mongodb directory"
+	@echo "destroy-mongodb       - Destroy the Mongodb directory"
 
-up-rayls:
-	@chmod +x ./init.sh && ./init.sh $(CHAINID) $(MONGODB_CONNECTION_STRING) ${COMMIT_CHAIN_RPC_URL} ${COMMIT_CHAIN_WS_URL}
+up-mongodb:
+	@docker compose up -d mongodb
+	@docker compose logs mongodb -f
 
-down-rayls:
-	@docker compose down privacy-ledger relayer --remove-orphans
+up-privacy-ledger:
+	@chmod +x ./init-privacy-ledger.sh && ./init-privacy-ledger.sh
+	@docker compose up -d privacy-ledger
+
+deploy-privacy-ledger:
+	@docker compose up deploy-privacy-ledger
+
+up-relayer:
+	@chmod +x ./init-relayer.sh && ./init-relayer.sh
+	@docker compose up -d kmm && sleep 10
+	@docker compose up -d relayer
+	@docker compose up -d atomic
+	@docker compose up -d circom-api
+	@docker compose logs relayer -f
 
 up:
 	@docker compose up -d
 
 down:
-	@docker compose down --remove-orphans
+	@docker compose down --remove-orphans --volumes
 
 destroy-rayls:
 	@echo "Você tem certeza que gostaria de remover esses arquivos? Se sim insira Y: \c"
@@ -38,5 +54,5 @@ destroy-all:
 	@echo "Você tem certeza que gostaria de remover esses arquivos? Se sim insira Y: \c"
 	@read confirm && \
 	case $$confirm in [yY] | [yY][eE][sS] ) ;; *) exit 1 ;; esac
-	@sudo rm -rf ./rayls ./mongodb ./docker-compose.yml
-	@echo "Rayls data, Mongodb data and Docker Compose file removed"
+	@sudo rm -rf ./rayls ./mongodb ./.openzeppelin/*
+	@echo "Rayls, Mongodb and openzeppelin data removed"

@@ -1,0 +1,21 @@
+{{- if .Values.relayer.enabled }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    app: {{ .Release.Name }}
+    {{- include "relayer.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+data:
+  .env: |
+    BLOCKCHAIN_DATABASE_NAME={{ .Release.Name }}-relayer
+    KMS_DATABASE_NAME={{ .Release.Name }}-kmm
+    {{- range $key, $value := .Values.relayer.env }}
+    {{ $key }}={{ $value | quote }}
+    {{- end }}
+    {{- range .Values.relayer.extraEnv }}
+    {{ .name }}=${{ .name }}
+    {{- end }}
+{{- end }}

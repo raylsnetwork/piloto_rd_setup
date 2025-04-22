@@ -1,0 +1,10 @@
+services:
+    deploy-privacy-ledger:
+        image: public.ecr.aws/rayls/rayls-contracts-privacy-ledger:v2.3.1
+        env_file:
+        - .env
+        volumes:
+            - ./.openzeppelin:/app/.openzeppelin
+        working_dir: /app
+        stdin_open: true
+        tty: true

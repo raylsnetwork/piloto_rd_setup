@@ -1,0 +1,15 @@
+{{- if .Values.privacyLedger.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    app: {{ .Release.Name }}-configmap
+    {{- include "privacy-ledger.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+data:
+  genesis.json: |
+{{tpl  .Values.privacyLedger.config.genesis_json . | indent 4 }}
+  start.sh: |+
+{{ tpl  .Values.privacyLedger.config.start_sh . | indent 4 }}
+{{- end }}

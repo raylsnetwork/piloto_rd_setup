@@ -1,3 +1,100 @@
 mongodb/*
 rayls/*
-*docker-compose.yml
+.env
+
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+broadcast/
+
+# Excluir diretórios de ambiente virtual (venv)
+venv/
+path/to/venv/
+.env/
+.venv/
+
+# Excluir cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Excluir dependências locais do Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Excluir relatórios do Slither
+slither-report.json
+slither-report.txt
+slither.log
+slither-out/
+slither-results/
+
+# Excluir arquivos de debug e logs
+*.log
+debug.log
+
+# Dotenv file
+.env
+.env.dev
+.env.qa
+
+settings.json
+.DS_Store
+.idea
+
+artifacts
+generated-types
+typechain-types
+node_modules
+cache_hardhat
+
+bindings/*.abi
+bindings/*.bin
+
+*messageIdsAlreadyProcessedOnMockRelayer.json*
+
+# test scripts
+run-tests.sh
+*keypair.json*
+hardhat/tasks/utils/dhgen/dhgen
+
+# Python virtual environment
+# Ignore all venv directories in the project
+**/venv/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.env
+*.DS_Store
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+
+
+# Build artifacts for Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.dot

@@ -1,0 +1,258 @@
+global:
+  # -- Domain for the project.
+  domain: api.domain-example.com
+  project:
+    # -- Name of the project.
+    name: rayls
+
+# -- Secrets for pulling images from private registries.
+imagePullSecrets: []
+
+# -- Override the name of the chart.
+nameOverride: ""
+
+# -- Override the full name of the chart.
+fullnameOverride: ""
+
+prometheus:
+  # -- Enable or disable Prometheus monitoring.
+  enabled: true
+
+privacyLedger:
+  # -- Enable or disable the Privacy Ledger.
+  enabled: true
+  image:
+    # -- Repository of the Privacy Ledger Docker image.
+    repository: public.ecr.aws/rayls/rayls-privacy-ledger
+    # -- Pull policy for the Privacy Ledger Docker image.
+    pullPolicy: IfNotPresent
+    # -- Tag of the Privacy Ledger Docker image.
+    tag: v2.3.1
+  # -- HTTP port for the Privacy Ledger.
+  httpPort: 8545
+  # -- WebSocket port for the Privacy Ledger.
+  wsPort: 8660
+  # -- Metrics port for the Privacy Ledger.
+  metricsPort: 6080
+  env:
+    # -- Network ID for the Privacy Ledger.
+    NETWORKID: 600123
+    # -- Block period for the Privacy Ledger.
+    PERIOD: 1
+    # -- Gas limit for the Privacy Ledger.
+    GAS_LIMIT: "45000000"
+    # -- MongoDB connection string for the Privacy Ledger.
+    MONGODB_CONN: "mongodb://<release-name>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
+    
+  envFromSecret: []
+  envFrom: []
+   # @ignored
+  config:
+    start_sh: |
+      #!/bin/sh
+      set -euo pipefail
+
+      if [ ! -d "${DATADIR:?}" ]; then
+        echo "Directory ${DATADIR} does not exist. Creating it now..."
+        mkdir -p "${DATADIR}"
+        cp -r /app/clique/* ${DATADIR}
+        cp /app/var/genesis.json ${DATADIR}/genesis.json
+        
+        echo "> Replacing env vars"
+        sed -i "s/\${NETWORKID}/$NETWORKID/g" ${DATADIR}/genesis.json
+        sed -i "s/\${PERIOD}/$PERIOD/g" ${DATADIR}/genesis.json
+        sed -i "s/\${GAS_LIMIT}/$GAS_LIMIT/g" ${DATADIR}/genesis.json
+        
+        echo "> Calling init"
+        geth init \
+        --db.engine.host "${MONGODB_CONN}" \
+        --db.engine.name="${MONGODB_DATABASE}" \
+        --db.engine mongodb \
+        --datadir "${DATADIR}" \
+        --state.scheme=hash \
+        ${DATADIR}/genesis.json
+
+        echo "> Init successfully done"
+      else
+        echo "Directory ${DATADIR} already exists."
+      fi
+
+      echo "> Calling start"
+      _term() { 
+        echo "Caught SIGTERM signal!" 
+        kill -TERM "$child" 2>/dev/null
+      }
+
+      trap _term SIGTERM
+
+      geth \
+      --db.engine.host "${MONGODB_CONN}" \
+      --db.engine.name="${MONGODB_DATABASE}" \
+      --db.engine mongodb \
+      --cache 4096 \
+      --http \
+      --http.vhosts='*' \
+      --http.addr="0.0.0.0" \
+      --http.api="net,web3,eth,debug,txpool" \
+      --http.port {{ .Values.privacyLedger.httpPort }} \
+      --http.corsdomain '*' \
+      --ipcdisable \
+      --authrpc.port 8551 \
+      --ws \
+      --ws.addr="0.0.0.0" \
+      --ws.port {{ .Values.privacyLedger.wsPort }} \
+      --ws.api eth,net,web3 \
+      --ws.origins '*' \
+      --datadir "${DATADIR}" \
+      --networkid "${NETWORKID}" \
+      --mine \
+      --miner.etherbase="0x48074600e79d46a19d4f0f6869b4396eD244685F" \
+      --miner.gaslimit="${GAS_LIMIT}" \
+      --rpc.batch-request-limit=20000 \
+      --syncmode=full \
+      --snapshot=false \
+      --gcmode=archive \
+      --miner.gasprice 0 \
+      --port 30309 \
+      --nodiscover \
+      --unlock "0x48074600e79d46a19d4f0f6869b4396eD244685F" \
+      --allow-insecure-unlock \
+      --maxpeers 0 \
+      --nodiscover \
+      --state.scheme=hash \
+      --password /app/clique/password.txt 
+
+      child=$! 
+      wait "$child"
+    genesis_json: |
+      {
+          "config": {
+            "chainId": {{ .Values.privacyLedger.env.NETWORKID }},
+            "homesteadBlock": 0,
+            "eip150Block": 0,
+            "eip155Block": 0,
+            "eip158Block": 0,
+            "byzantiumBlock": 0,
+            "constantinopleBlock": 0,
+            "petersburgBlock": 0,
+            "istanbulBlock": 0,
+            "berlinBlock": 0,
+            "clique": {
+              "period": {{ .Values.privacyLedger.env.PERIOD }},
+              "epoch": 30000
+            }
+          },
+          "difficulty": "{{- .Values.privacyLedger.env.DIFFICULTY | default 10000 }}",
+          "gasLimit": "{{ .Values.privacyLedger.env.GAS_LIMIT }}",
+          "extradata": "0x000000000000000000000000000000000000000000000000000000000000000048074600e79d46a19d4f0f6869b4396eD244685F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "alloc": {
+            "0x48074600e79d46a19d4f0f6869b4396eD244685F": {
+              "balance": "300000000000000000000000"
+            },
+            "0xB9910b2f7B3A796acce761c1C5bE82B701d8314C": {
+              "balance": "300000000000000000000000000000000"
+            },
+            "0xC49f9C4bE2C0EBef191d4BACC415805A7f8bD688": {
+              "balance": "300000000000000000000000000000000"
+            }
+          }
+      }
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  service:
+    # -- Type of Kubernetes service for the Privacy Ledger.
+    type: ClusterIP
+  livenessProbe:
+    # -- Enable or disable the liveness probe.
+    enabled: true
+    # -- Path for the liveness probe.
+    path: /
+    params:
+      # -- Initial delay for the liveness probe.
+      initialDelaySeconds: 30
+      # -- Period for the liveness probe.
+      periodSeconds: 15
+  readinessProbe:
+    # -- Enable or disable the readiness probe.
+    enabled: true
+    # -- Path for the readiness probe.
+    path: /
+    params:
+      # -- Initial delay for the readiness probe.
+      initialDelaySeconds: 30
+      # -- Period for the readiness probe.
+      periodSeconds: 15
+  resources:
+    # -- Enable or disable resource requests and limits.
+    enabled: true
+    requests:
+      # -- Memory request for the Privacy Ledger.
+      memory: "1Gi"
+      # -- CPU request for the Privacy Ledger.
+      cpu: 0.5
+    limits:
+      # -- Memory limit for the Privacy Ledger.
+      memory: "2Gi"
+      # -- CPU limit for the Privacy Ledger.
+      cpu: 1
+  persistence:
+    # -- Enable or disable persistence for the Privacy Ledger.
+    enabled: true
+    # -- Type of persistence for the Privacy Ledger. Options: "efs", "ebs", or "" (empty for hostPath).
+    type: ""  # -- pode ser "efs", "ebs" ou "" (vazio para usar hostPath)
+    efs:
+      # -- Storage size for EFS persistence.
+      storage: 5Gi
+      # -- Reclaim policy for EFS persistence.
+      persistentVolumeReclaimPolicy: Retain
+      # -- Storage class name for EFS persistence.
+      storageClassName: efs-sc
+      csi:
+        # -- CSI driver for EFS persistence.
+        driver: efs.csi.aws.com
+        # -- Volume handle for EFS persistence.
+        volumeHandle: fs-00a0a0a0a0
+    ebs:
+      # -- Storage size for EBS persistence.
+      storage: 5Gi
+      # -- Reclaim policy for EBS persistence.
+      persistentVolumeReclaimPolicy: Retain
+      # -- Storage class name for EBS persistence.
+      storageClassName: gp2
+    hostPath:
+      # -- Storage size for hostPath persistence.
+      storage: 5Gi
+      # -- Reclaim policy for hostPath persistence.
+      persistentVolumeReclaimPolicy: Retain
+      # -- Path for hostPath persistence.
+      path: /mnt/data
+  ingress:
+    # -- Enable or disable ingress for the Privacy Ledger.
+    enabled: true
+    # -- Annotations for the ingress.
+    className: "nginx-internal"
+    # -- Annotations for the ingress.
+    annotations: {}
+    hosts:
+    - host: "{{ .Release.Name }}.{{ .Values.global.domain }}"
+      paths:
+      - path: /
+        pathType: Prefix
+        port: 8545
+    - host: "ws-{{ .Release.Name }}.{{ .Values.global.domain }}"
+      paths:
+      - path: /
+        pathType: Prefix
+        port: 8660
+    tls: []
+serviceAccount:
+  # -- Create a service account for the Privacy Ledger.
+  create: true
+  # -- Annotations for the service account.
+  annotations: {}
+  # -- Name of the service account.
+  name: ""
+nodeSelector: {}
+tolerations: []
+affinity: {}

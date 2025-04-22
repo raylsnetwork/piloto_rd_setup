@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mongodb.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "mongodb.fullname" . }}
+  selector:
+    matchLabels:
+      app: {{ include "mongodb.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "mongodb.name" . }}
+    spec:
+      volumes:
+        - name: mongodb-data
+          persistentVolumeClaim:
+            claimName: {{ include "mongodb.fullname" . }}-pvc
+      containers:
+        - name: mongodb
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+          ports:
+            - containerPort: {{ .Values.service.port }}
+
+---

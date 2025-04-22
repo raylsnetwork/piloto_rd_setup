@@ -1,0 +1,91 @@
+{{- if .Values.relayer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-atomic
+  labels:
+    app: {{ .Release.Name }}-atomic
+    {{- include "relayer.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+spec:
+  replicas: {{ default 1 .Values.atomic.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-atomic
+      project: {{ .Values.global.project.name }}
+  template:
+    metadata:
+      annotations:
+      checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.atomic.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ .Release.Name }}-atomic
+        project: {{ .Values.global.project.name }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.atomic.podSecurityContext | nindent 8 }}
+      containers:
+      - name: atomic
+        image: "{{ .Values.atomic.image.repository }}:{{ .Values.atomic.image.tag }}"
+        imagePullPolicy: {{ .Values.atomic.image.pullPolicy }}
+        command:
+          - /app/raylz-atomic
+          - run
+          - '--env'
+          - /app/var/.env
+        env:
+        {{- range $key, $value := .Values.relayer.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- range .Values.relayer.extraEnv }}
+        - {{ tpl (toYaml .) $ | nindent 10 | trim }}
+        {{- end }}
+        {{- if or .Values.relayer.envFromSecret .Values.relayer.envFrom }}
+        envFrom:
+          {{- if .Values.relayer.envFromSecret }}
+          - secretRef:
+              name: {{ include "relayer.fullname" . }}-relayer-env
+          {{- end }}
+          {{- range .Values.relayer.envFrom }}
+          - {{ tpl (toYaml .) . | nindent 10 | trim }}
+          {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.atomic.resources.requests.memory | default "256Mi" }}
+            cpu: {{ .Values.atomic.resources.requests.cpu | default "250m" }}
+          limits:
+            memory: {{ .Values.atomic.resources.limits.memory | default "1000Mi" }}
+            cpu: {{ .Values.atomic.resources.limits.cpu | default "1" }}
+        volumeMounts:
+        - name: config
+          mountPath: "/app/var"
+          readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.atomic.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          defaultMode: 0700
+{{- end }}

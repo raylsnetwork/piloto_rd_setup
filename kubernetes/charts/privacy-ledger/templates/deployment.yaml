@@ -1,0 +1,134 @@
+{{- if .Values.privacyLedger.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    {{- include "privacy-ledger.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      project: {{ .Values.global.project.name }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.privacyLedger.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ .Release.Name }}
+        project: {{ .Values.global.project.name }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "privacy-ledger.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.privacyLedger.podSecurityContext | nindent 8 }}
+      containers:
+      - name: privacy-ledger
+        image: "{{ .Values.privacyLedger.image.repository }}:{{ .Values.privacyLedger.image.tag }}"
+        command: ['/app/var/start.sh']
+        ports:
+          - containerPort:  {{ .Values.privacyLedger.httpPort }}
+            name: http
+          - containerPort:  {{ .Values.privacyLedger.wsPort }}
+            name: ws
+          - containerPort:  {{ .Values.privacyLedger.metricsPort }}
+            name: metrics
+        env:
+        - name: DATADIR
+          value: /app/data/{{ .Release.Name }}
+        - name: MONGODB_DATABASE
+          value: {{ .Release.Name }}
+        {{- range $key, $value := .Values.privacyLedger.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- range .Values.privacyLedger.extraEnv }}
+        - {{ tpl (toYaml .) $ | nindent 10 | trim }}
+        {{- end }}
+        {{- if or .Values.privacyLedger.envFromSecret .Values.privacyLedger.envFrom }}
+        envFrom:
+        {{- if .Values.privacyLedger.envFromSecret }}
+        - secretRef:
+            name: {{ .Release.Name }}-privateLedger-env
+        {{- end }}
+        {{- range .Values.privacyLedger.envFrom }}
+        - {{ toYaml . | nindent 10 | trim }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.privacyLedger.resources }}
+        resources:
+          requests:
+            memory: {{ .Values.privacyLedger.resources.requests.memory | default "512Mi" }}
+            cpu: {{ .Values.privacyLedger.resources.requests.cpu | default "500m" }}
+          limits:
+            memory: {{ .Values.privacyLedger.resources.limits.memory | default "1000Mi" }}
+            cpu: {{ .Values.privacyLedger.resources.limits.cpu | default "1" }}
+        {{- end }}
+        {{- if .Values.privacyLedger.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.privacyLedger.readinessProbe.path }}
+            port: {{ .Values.privacyLedger.httpPort }}
+            scheme: HTTP
+          {{- with .Values.privacyLedger.readinessProbe.params }}
+          {{- . | toYaml | nindent 10 }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.privacyLedger.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.privacyLedger.livenessProbe.path }}
+            port: {{ .Values.privacyLedger.httpPort }}
+            scheme: HTTP
+          {{- with .Values.privacyLedger.livenessProbe.params }}
+          {{- . | toYaml | nindent 10 }}
+          {{- end }}
+        {{- end }}
+        volumeMounts:
+        - name: config
+          mountPath: "/app/var"
+          readOnly: true
+        - name: data
+          mountPath: "app/data"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.privacyLedger.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          defaultMode: 0700
+      {{- if .Values.privacyLedger.persistence.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-claim
+      {{- else }}
+      - name: data
+        emptyDir: {}
+      {{- end }}
+{{- end }}

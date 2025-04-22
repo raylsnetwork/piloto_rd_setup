@@ -1,0 +1,28 @@
+{{- if .Values.privacyLedger.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-svc
+  labels:
+    app: {{ .Release.Name }}-svc
+    {{- include "privacy-ledger.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+spec:
+  type: {{ .Values.privacyLedger.service.type }}
+  ports:
+    - port: {{ .Values.privacyLedger.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.privacyLedger.wsPort }}
+      targetPort: ws
+      protocol: TCP
+      name: ws
+    - port: {{ .Values.privacyLedger.metricsPort }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    app: {{ .Release.Name }}
+{{- end }}

@@ -1,0 +1,97 @@
+{{- if .Values.relayer.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-kmm
+  labels:
+    app: {{ .Release.Name }}-kmm
+    {{- include "relayer.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+spec:
+  replicas: {{ default 1 .Values.kmm.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-kmm
+      project: {{ .Values.global.project.name }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.kmm.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ .Release.Name }}-kmm
+        project: {{ .Values.global.project.name }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.kmm.podSecurityContext | nindent 8 }}
+      containers:
+      - name: kmm
+        image: "{{ .Values.kmm.image.repository }}:{{ .Values.kmm.image.tag }}"
+        imagePullPolicy: {{ .Values.kmm.image.pullPolicy }}
+        command:
+          - /app/raylz-kos
+          - run
+          - '--env'
+          - /app/var/.env
+          - '--port'
+          - '{{ .Values.kmm.service.port }}'
+        ports:
+          - containerPort:  {{ .Values.kmm.service.port }}
+            name: http
+        env:
+        {{- range $key, $value := .Values.relayer.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- range .Values.relayer.extraEnv }}
+        - {{ tpl (toYaml .) $ | nindent 10 | trim }}
+        {{- end }}
+        {{- if or .Values.relayer.envFromSecret .Values.relayer.envFrom }}
+        envFrom:
+          {{- if .Values.relayer.envFromSecret }}
+          - secretRef:
+              name: {{ include "relayer.fullname" . }}-kmm-env
+          {{- end }}
+          {{- range .Values.relayer.envFrom }}
+          - {{ tpl (toYaml .) . | nindent 10 | trim }}
+          {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.kmm.resources.requests.memory | default "256Mi" }}
+            cpu: {{ .Values.kmm.resources.requests.cpu | default "250m" }}
+          limits:
+            memory: {{ .Values.kmm.resources.limits.memory | default "1000Mi" }}
+            cpu: {{ .Values.kmm.resources.limits.cpu | default "1" }}
+        volumeMounts:
+        - name: config
+          mountPath: "/app/var"
+          readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kmm.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          defaultMode: 0700
+{{- end }}

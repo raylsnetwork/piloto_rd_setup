@@ -1,57 +1,54 @@
-# Setup Docker
+# Docker
 
 ## Pré-requisitos
 
-Para que os componentes dos participantes do Drex possam utilizar a Rayls, é necessário:
-
-- Acesso ao repositório piloto_rd_setup.
 - WSL/Sistema operacional Linux
-- ChainID que foi disponibilizado previamente pelo Banco Central
 - [Make](https://www.gnu.org/software/make/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- Cluster MongoDB com ReplicaSet
 
-Caso tenha alguma dúvida, na [FAQ](#faq) abaixo estão descritos os comandos para checar se os componentes estão instalados e quais as versões dos mesmos 
+### Criando .env
 
-### Clonar Repositorio
+Todo o setup via Docker compose está utilizando `.env`. Existe um `.env-example` disponível para todo o processo de instalação. Crie um arquivo `.env` baseado no `.env-example`
 
-> **⚠️ Atenção:**
->
-> Os tokens de acesso pessoal são uma alternativa ao uso de senhas para autenticação no GitHub ao usar a API do GitHub ou a linha de comando.
-> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
-
-- Faça clone do repositório piloto_rd_setup.
 ```bash
-git clone https://github.com/raylsnetwork/piloto_rd_setup.git
-cd piloto_rd_setup
+# The following environment variables are used to configure the Rayls application.
+# Please replace the placeholder values with your actual configuration.
+
+# Deploy Contracts
+NODE_CC_CHAIN_ID="999990001"
+RPC_URL_NODE_CC="http://<besu-endpoint>:8545"
+WS_URL_NODE_CC="ws://<besu-endpoint>:8546"
+PRIVATE_KEY_SYSTEM="0x0000000000000000000000000000000000000000"
+RPC_URL_NODE_PL="http://privacy-ledger:8545"
+NODE_PL_CHAIN_ID="123456789"
+COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY="0x9bfe7a23fC8882D7A692d959C89c0c2A7266bfED"
+
+# Relayer variables
+BLOCKCHAIN_DATABASE_NAME=rayls-relayer
+BLOCKCHAIN_PLSTARTINGBLOCK=100
+BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES=500
+BLOCKCHAIN_PLENDPOINTADDRESS=0x1234567890abcdef1234567890abcdef12345678
+BLOCKCHAIN_LISTENER_BATCH_BLOCKS=50
+BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
+BLOCKCHAIN_ENYGMA_PL_EVENTS=0x1234567890abcdef1234567890abcdef12345678
+COMMITCHAIN_CCSTARTINGBLOCK=123456
+COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=123456
+KMS_DATABASE_NAME=rayls-kmm
+BLOCKCHAIN_KMS_API_KEY="example_api_key"
+BLOCKCHAIN_KMS_SECRET="example_secret"
+KMS_API_KEY="example_api_key"
+KMS_SECRET="example_secret"
 ```
 
 ## Instalando o ambiente Rayls
 
+### MongoDB
 > **⚠️ Atenção:**
 > Tanto a Rayls Privacy Ledger quanto o Rayls Relayer necessitam de um cluster MongoDB com Replica Set configurado. Caso nenhuma connection string seja informada, inicializaremos um cluster MongoDB local com Replica Set configurado.
 >
 > Reforçamos que essa imagem estará disponível no repositório somente enquanto durarem os testes do Drex e que não deve ser utilizada em produção. A Parfin não se responsabiliza pelo suporte no Mongo ou caso ocorra alguma perda de dados relacionada a essa imagem.
-
-
-> O Relayer necessita das seguintes chaves para comunicação no bloco de configuração da Blockchain:
->
->  "DhSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
->  "DhPublic": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
->
->**⚠️ Atenção:**
-> Caso essas chaves não sejam informadas, elas serão geradas automaticamente e gravadas no banco de dados na base do relayer.
-> É essencial que seja feito o backup do par de chaves caso realize a migração do setup.
-> Para realizar o backup do par de chaves basta executar os seguintes comandos: 
-
-```bash
-docker exec -it docker-mongodb-1 bash
-mongosh
-use rayls-relayer
-db.secrets.find()
-```
 
 #### Importante
 
@@ -60,85 +57,201 @@ db.secrets.find()
 - É essencial que o MongoDB esteja operacional para inicializar a Rayls Network
 - Caso tenha perdido esse par de chaves, por favor entre em contato com o time da Parfin
 
-### Instalação
+Para inicializar o MongoDB basta executar o comando:
 
-1. Para inicializar o ambiente Rayls com MongoDB local basta utilizar o seguinte comando:
-
-#### Inicializando a Rayls utilizando MongoDB local
 ```bash
-cd docker
-make up-rayls CHAINID=xxxxxxxxx COMMIT_CHAIN_RPC_URL=http://commit-chain-rpc-url:commit-chain-rpc-port COMMIT_CHAIN_WS_URL=ws://commit-chain-ws-url:commit-chain-ws-port     
+make up-mongodb
 ```
 
-#### Inicializando a Rayls utilizando MongoDB Atlas
-Caso prefira utilizar um MongoDB gerenciado (MongoDB Atlas), basta informar a string de conexão como parâmetro:
+### Privacy Ledger
+
+1. Inicie a aplicação utilizando o comando:
+
 ```bash
-cd docker
-make up-rayls CHAINID=xxxxxxxxx COMMIT_CHAIN_RPC_URL=http://commit-chain-rpc-url:commit-chain-rpc-port COMMIT_CHAIN_WS_URL=ws://commit-chain-ws-url:commit-chain-ws-port MONGODB_CONNECTION_STRING='mongodb+srv://username:password@endpoint' 
+make up-privacy-ledger
 ```
 
-- Após inicializar o ambiente o seguinte output será exibido:
-
+- Output:
 ```bash
 Directories created:
-./rayls/privacy-ledger/data
 ./rayls/privacy-ledger/var
 ./rayls/relayer/var
 
 Files created:
 ./rayls/privacy-ledger/var/genesis.json
-./rayls/privacy-ledger/var/config.toml
 ./rayls/privacy-ledger/var/start.sh
-./docker-compose.yml
 
-CHAINID was updated in the following files:
+NODE_PL_CHAIN_ID was updated in the following files:
 ./rayls/privacy-ledger/var/genesis.json
 ./rayls/privacy-ledger/var/start.sh
 
-Starting Rayls Environment!
+Starting Privacy Ledger...
+[+] Running 1/1
+ ✔ Container docker-privacy-ledger-1  Started  
 ```
 
-- Após alguns segundos todos os recursos serão provisionados automaticamente:
+2. Após iniciar a Privacy Ledger será necessário realizar o deploy dos contratos, execute o comando:
 
 ```bash
-[+] Running 2/2
- ✔ Container docker-privacy-ledger-1  Running
- ✔ Container docker-relayer-1         Started
+make deploy-privacy-ledger
 ```
 
-Os logs da Privacy Ledger e Relayer serão exibidos automaticamente no terminal, o resultado esperado no log será:
+Output:
 ```bash
-privacy-ledger-1  | INFO [07-04|14:33:00.521] Generating DAG in progress               epoch=1 percentage=64 elapsed=23.524s
-privacy-ledger-1  | INFO [07-04|14:33:00.858] Generating DAG in progress               epoch=1 percentage=65 elapsed=23.861s
-privacy-ledger-1  | INFO [07-04|14:33:01.189] Generating DAG in progress               epoch=1 percentage=66 elapsed=24.192s
-relayer-1         | [14:33:01 2024-07-04] INFO: Deployment document inserted | version="1.8.6.2" 
-relayer-1         | [14:33:01 2024-07-04] INFO: 📝 Endpoint Address from Private Ledger  | ADDRESS=0xExEMPL0AFa067aCC9EXAMPLE6C382282bEXAMPL1 
-```
-Após isso basta interromper a execução dos logs utilizando o comando `ctrl + c`
+Starting deployment of Private Ledger base contracts...
+Deployer Address: 0x0000000000000000000000000000000000000000
+###########################################
+🛠️ DEPLOYMENT_REGISTRY_ADDRESS_PL not found in .env file. Deploying a new DeploymentRegistry contract...
+Deploying DeploymentRegistry...
+✅ DeploymentRegistry deployed at 0x0000000000000000000000000000000000000000
+Deploying RaylsMessageExecutorV1...
+✅ RaylsMessageExecutorV1 deployed at 0x0000000000000000000000000000000000000000
+Deploying EndpointV1...
+✅ EndpointV1 deployed at 0x0000000000000000000000000000000000000000
+Deploying RaylsContractFactoryV1...
+✅ RaylsContractFactoryV1 deployed at 0x0000000000000000000000000000000000000000
+Deploying ParticipantStorageReplicaV1...
+✅ ParticipantStorageReplicaV2 deployed at 0x0000000000000000000000000000000000000000
+Deploying TokenRegistryReplicaV1...
+✅ TokenRegistryReplicaV1 deployed at 0x0000000000000000000000000000000000000000
+Deploying EnygmaPLEvent...
+✅ EnygmaPLEvent deployed at0x0000000000000000000000000000000000000000
+✅ Finished deployment of PL base contracts
+===========================================
+👉 Contract Addresses 👈
+RAYLS_MESSAGE_EXECUTOR: 0x0000000000000000000000000000000000000000
+PL_ENDPOINT: 0x0000000000000000000000000000000000000000
+RAYLS_CONTRACT_FACTORY: 0x0000000000000000000000000000000000000000
+PARTICIPANT_STORAGE_REPLICA: 0x0000000000000000000000000000000000000000
+ENYGMA_PL_EVENTS:0x0000000000000000000000000000000000000000
+-------------------------------------------
+Configuring contracts in EndpointV1...
+✅ Contracts configured successfully in EndpointV1.
+Synchronizing participant data from Commit Chain...
+✅ Participant data synchronization complete.
+Synchronizing frozen tokens from Commit Chain...
+✅ Frozen tokens synchronization complete.
+Registering Token Registry in EndpointV1...
+✅ Token Registry registered successfully.
+Saving deployment data for version: 2.0
+⏳ Waiting for transaction to be mined...
+✅ Deployment data saved on blockchain!
+✅ Deployment data saved for version 2.0
 
-> ⚠️ Importante armazenar os valores do `Endpoint Address from Privacy Ledger`.
+NODE_PL_ENDPOINT_ADDRESS0x0000000000000000000000000000000000000000
+
+===========================================
+👉👉👉👉 Relayer Configuration 👈👈👈👈
+-------------------------------------------
+ENV FORMAT:
+
+BLOCKCHAIN_PLSTARTINGBLOCK=00
+BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES=500
+BLOCKCHAIN_PLENDPOINTADDRESS=0x00000000000000000000000000000000000000003
+BLOCKCHAIN_LISTENER_BATCH_BLOCKS=50
+BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
+BLOCKCHAIN_ENYGMA_PL_EVENTS=0x0000000000000000000000000000000000000000
+```
+
+> ℹ️ O arquivo `unknown-<NODE_PL_CHAIN_ID>.json` será adicionado automaticamente na pasta `.openzeppelin`. É importante que esse arquivo seja versionado ao final do processo.
+
+
+### Relayer, KMM, Atomic Service e Circom API
+
+Após realizar o deploy da Governance API e Privacy Ledger será possível inicializar os demais componentes.
+
+1. Crie as chaves `API_KEY` e `API_SECRET`:
+```bash
+api_key=$(openssl rand -hex 16)
+ 
+api_secret=$(openssl rand -hex 32)
+ 
+echo "API_KEY=$api_key"
+echo "API_SECRET=$api_secret"
+```
+
+2. Atualize as variáveis na sessão `# Relayer variables`
+```bash
+# Relayer variables
+BLOCKCHAIN_DATABASE_NAME=rayls-relayer
+BLOCKCHAIN_PLSTARTINGBLOCK=100
+BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES=500
+BLOCKCHAIN_PLENDPOINTADDRESS=0x1234567890abcdef1234567890abcdef12345678
+BLOCKCHAIN_LISTENER_BATCH_BLOCKS=50
+BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
+BLOCKCHAIN_ENYGMA_PL_EVENTS=0x1234567890abcdef1234567890abcdef12345678
+COMMITCHAIN_CCSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
+COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
+KMS_DATABASE_NAME=rayls-kmm
+BLOCKCHAIN_KMS_API_KEY="API_KEY"
+BLOCKCHAIN_KMS_SECRET="API_SECRET"
+KMS_API_KEY="API_KEY"
+KMS_SECRET="API_SECRET"
+```
+
+2. Inicialize os componentes:
+```bash
+make up-relayer
+```
+
+- Output
+```bash
+relayer-1  | [21:11:50 2025-04-15] INFO: Configuration validated successfully | 
+relayer-1  | [21:11:50 2025-04-15] INFO: Initializing.. | CCEndpointMaxBatchMessages=500 
+relayer-1  | Working dir path:  /app
+relayer-1  | Migrations path:  file:///app/database/mongodb/migrations
+relayer-1  | [21:11:50 2025-04-15] INFO: No migration files found. Skipping migration. | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Getting DH pair | 
+relayer-1  | [21:11:52 2025-04-15] WARN: DH pair not found |  
+relayer-1  | [21:11:52 2025-04-15] INFO: Creating DH pair |  
+relayer-1  | [21:11:52 2025-04-15] INFO: Successfully created and retrieved DH pair | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Retrieving enygma key | 
+relayer-1  | [21:11:52 2025-04-15] WARN: Enygma key not found | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Creating enygma key | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Successfully created enygma key | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Retrieving relayer ECDSA keys | 
+relayer-1  | [21:11:52 2025-04-15] WARN: Relayer ECDSA keys not found | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Creating relayer ECDSA keys | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Successfully created relayer ECDSA keys | 
+relayer-1  | [21:11:52 2025-04-15] INFO: Initialising private Ledger starting block number | StartingBlock=00 
+relayer-1  | [21:11:52 2025-04-15] INFO: Initialising Commit Chain starting block from config | StartingBlock=123456
+relayer-1  | [21:11:53 2025-04-15] INFO: Private keys for PL and CC populated successfully | 
+relayer-1  | [21:11:53 2025-04-15] INFO: DH public key already registered | ChainId=123456789
+relayer-1  | [21:11:54 2025-04-15] INFO: BabyJubjub X & Y keys already registered | ChainId=123456789
+relayer-1  | [21:11:54 2025-04-15] INFO: Chain ID already registered | ChainId=123456789 
+relayer-1  | [21:11:54 2025-04-15] INFO: Audit info already registered | ChainId=123456789 
+relayer-1  | [21:11:56 2025-04-15] INFO: Adding logs to CC batcher | Batch length:=2 
+relayer-1  | [21:11:57 2025-04-15] INFO: Total messages to finishEIP5164Transaction | Total Messages=0 
+relayer-1  | [21:11:57 2025-04-15] INFO: Total messages to execute on PL from CC | Total Messages=2 
+relayer-1  | [21:11:57 2025-04-15] INFO: Messages for the PL from the CC executed | Total Executed Messages:=2 
+```
+
+Para encerrar os logs do Relayer basta executar o comando `ctrl+c`
 
 ### FAQ
 
 #### Comandos para verificar os pré requisitos e as versões instaladas
 
-- Linux: `uname -a` -> Este comando irá exibir a versão do Sistema Operacional e informações do Kernel
-- git: `git --version` -> Este comando irá exibir a versão do git instalada. Se não estiver será retornado um erro dizendo que o git não foi encontrado
-- make: `make --version` -> Este comando irá exibir a versão do make instalada. Se não estiver será retornado um erro dizendo que o make não foi encontrado
-- docker: `docker --version` -> Este comando irá exibir a versão do docker instalada. Se não estiver será retornado um erro dizendo que o docker não foi encontrado
-- docker compose: `docker compose version` -> Este comando irá exibir a versão do docker compose instalada. Se não estiver será retornado um erro dizendo que o docker compose não foi encontrado
+- Linux: `uname -a`
+- git: `git --version` 
+- make: `make --version`
+- docker: `docker --version`
+- docker compose: `docker compose version` 
 
 #### Como verifico os comandos disponíveis neste projeto?
 
 Para verificar os comandos disponíveis basta rodar o comando `make help`
 
 ```bash
-up            - Start all services
-up-rayls      - Start the Privacy Ledger, Relayer
-down-rayls    - Stop the Privacy Ledger, Relayer and remove orphans
-down          - Stop all services and remove orphans
-destroy-rayls - Destroy the Rayls directory
-destroy-all   - Destroy the Rayls directory, Mongodb directory and Docker Compose file
+up-mongodb            - Start the mongodb service
+up-privacy-ledger     - Start the privacy-ledger and mongodb services
+deploy-privacy-ledger - Deploy the privacy-ledger contracts
+up-relayer            - Start the relayer service, kmm, atomic and circom-api
+up                    - Start all services
+down                  - Stop all services and remove orphans
+destroy-rayls         - Destroy the Rayls directory
+destroy-all           - Destroy the Rayls and Mongodb directory
+destroy-mongodb       - Destroy the Mongodb directory
 ```
 
 #### Como verifico se meus containers estão rodando?
@@ -155,6 +268,9 @@ Para visualizar os logs dos containers basta executar os seguintes comandos:
 docker logs docker-mongodb-1 -f
 docker logs docker-privacy-ledger-1 -f
 docker logs docker-relayer-1 -f
+docker logs docker-circom-api-1 -f
+docker logs docker-kmm-1 -f
+docker logs docker-atomic-service-1 -f
 ```
 
 #### Como realizo o restore das chaves em outra instalação?
@@ -168,33 +284,19 @@ mongosh
 use rayls-relayer
 db.secrets.find()
 ```
-- Adicionar os valores da `DHSECRET`, `DHPUBLIC` e `PRIVATEKEY` nas variáveis do relayer no docker-compose previamente criado:
+- Adicionar os valores da `DHSECRET`, `DHPUBLIC` e `PRIVATEKEY` nas variáveis no `.env` previamente criado:
 
-```yaml
-RELAYER_BLOCKCHAIN_DHSECRET=$DHSECRET
-RELAYER_BLOCKCHAIN_DHPUBLIC= $DHPUBLIC
-RELAYER_BLOCKCHAIN_PRIVATEKEY=$PRIVATEKEY
+```bash
+BLOCKCHAIN_DHSECRET=$DHSECRET
+BLOCKCHAIN_DHPUBLIC=$DHPUBLIC
+BLOCKCHAIN_PRIVATEKEY=$PRIVATEKEY
 ```
 
 - Atualizar a estrutura do arquivo de configuração do relayer para incluir as novas chaves:
 
-./rayls/relayer/var/config.json
-```json
-"Blockchain": {
-    "ChainID": "${RELAYER_BLOCKCHAIN_CHAINID}",
-    "ChainURL": "${RELAYER_BLOCKCHAIN_CHAINURL}",
-    "ChainWSURL": "${RELAYER_BLOCKCHAIN_CHAINWSURL}",
-    "BatchSize": "${RELAYER_BLOCKCHAIN_BATCHSIZE}",
-    "DhSecret": "${RELAYER_BLOCKCHAIN_DHSECRET}",
-    "DhPublic": "${RELAYER_BLOCKCHAIN_DHPUBLIC}",
-    "PrivateKey": "${RELAYER_BLOCKCHAIN_PRIVATEKEY}",
-    "PlStartingBlock": "0"
-},
-```
-
-- Inicializar os componentes previamente criados:
-
+./rayls/relayer/var/.env
 ```bash
-cd docker
-make up
+BLOCKCHAIN_DHSECRET=$DHSECRET
+BLOCKCHAIN_DHPUBLIC=$DHPUBLIC
+BLOCKCHAIN_PRIVATEKEY=$PRIVATEKEY
 ```
