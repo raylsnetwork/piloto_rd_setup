@@ -1,0 +1,13 @@
+First, go to this folder:
+
+cd ./hardhat/tasks/utils/dhgen
+
+Use the go build command to compile your file. You can specify the target OS and architecture using environment variables if different from your current system. For example:
+For Windows:
+    $ GOOS=windows GOARCH=amd64 go build -o dhgen.exe main.go
+For Linux:
+    $ GOOS=linux GOARCH=amd64 go build -o dhgen main.go
+For macOS:
+    $ GOOS=darwin GOARCH=amd64 go build -o dhgen main.go
+
+Now you generated the executable file. To run in linux just use the ./dhgen command

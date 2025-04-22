@@ -1,0 +1,86 @@
+{{- if .Values.privacyLedger.persistence.enabled }}
+
+{{- if eq .Values.privacyLedger.persistence.type "efs" }}
+# ------------------------ EFS ------------------------
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  capacity:
+    storage: {{ .Values.privacyLedger.persistence.efs.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.privacyLedger.persistence.efs.storageClassName }}
+  persistentVolumeReclaimPolicy: {{ .Values.privacyLedger.persistence.efs.persistentVolumeReclaimPolicy }}
+  csi:
+    driver: {{ .Values.privacyLedger.persistence.efs.csi.driver }}
+    volumeHandle: {{ .Values.privacyLedger.persistence.efs.csi.volumeHandle }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-claim
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.privacyLedger.persistence.efs.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.privacyLedger.persistence.efs.storage }}
+
+{{- else if eq .Values.privacyLedger.persistence.type "ebs" }}
+# ------------------------ EBS ------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-claim
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.privacyLedger.persistence.ebs.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.privacyLedger.persistence.ebs.storage }}
+
+{{- else }}
+# -------------------- HOSTPATH (default) --------------------
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  capacity:
+    storage: {{ .Values.privacyLedger.persistence.hostPath.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: {{ .Values.privacyLedger.persistence.hostPath.persistentVolumeReclaimPolicy }}
+  hostPath:
+    path: {{ .Values.privacyLedger.persistence.hostPath.path }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-claim
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""  # importante para permitir o bind com hostPath
+  resources:
+    requests:
+      storage: {{ .Values.privacyLedger.persistence.hostPath.storage }}
+
+{{- end }}
+{{- end }}

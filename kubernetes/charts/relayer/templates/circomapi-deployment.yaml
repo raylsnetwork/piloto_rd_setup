@@ -1,0 +1,51 @@
+{{- if .Values.circomApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-circomapi
+  labels:
+    project: {{ .Values.global.project.name }}
+spec:
+  replicas: {{ .Values.circomApi.replicas }}
+  selector:                        
+    matchLabels:                   
+      app: {{ .Release.Name }}-circomapi
+      project: {{ .Values.global.project.name }}                
+  template:
+    metadata:
+      labels:                      
+        app: {{ .Release.Name }}-circomapi
+        project: {{ .Values.global.project.name }}              
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-circom-api
+        image: "{{ .Values.circomApi.image.repository }}:{{ .Values.circomApi.image.tag }}"
+        imagePullPolicy: {{ .Values.circomApi.image.pullPolicy }}
+        ports:
+          - containerPort: 3000
+            name: http
+        env:
+          {{- range $key, $value := .Values.circomApi.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote  }}
+          {{- end }}
+          {{- range $.Values.circomApi.extraEnv }}
+          - name: {{ . }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.circomApi.nameSecret }}
+                key: {{ . }}
+          {{- end }}
+        envFrom:
+        {{- range $.Values.circomApi.EnvFrom }}
+          - secretRef:
+              name: {{ $.Values.circomApi.nameSecret }}
+        {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.circomApi.resources.requests.memory | default "512Mi" }}
+            cpu: {{ .Values.circomApi.resources.requests.cpu | default "500m" }}
+          limits:
+            memory: {{ .Values.circomApi.resources.limits.memory | default "1000Mi" }}
+            cpu: {{ .Values.circomApi.resources.limits.cpu | default "1" }}
+{{- end }}

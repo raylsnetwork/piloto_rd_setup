@@ -1,0 +1,29 @@
+# -- Configuration of environment variables for MongoDB.
+env: {}
+
+# -- Number of MongoDB replicas to be deployed.
+replicaCount: 1
+
+image:
+  # -- Repository of the MongoDB Docker image.
+  repository: public.ecr.aws/rayls/rayls-mongors
+  # -- Tag of the Docker image to be used.
+  tag: latest
+  # -- Pull policy for the Docker image.
+  pullPolicy: IfNotPresent
+
+storage:
+  # -- Size of the persistent storage volume.
+  size: 20Gi
+  # -- Path where the data will be stored in the container.
+  path: /mnt/data
+  # -- Name of the storage class to be used.
+  storageClassName: mongodb-sc
+  # -- Access mode for the volume.
+  accessMode: ReadWriteOnce
+  # -- Retention policy for the volume after the resource is deleted.
+  reclaimPolicy: Retain
+
+service:
+  # -- Port on which the MongoDB service will be accessible.
+  port: 27017

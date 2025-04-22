@@ -1,0 +1,25 @@
+{
+  "ts-node": {
+    // these options are overrides used only by ts-node
+    // same as the --compilerOptions flag and the TS_NODE_COMPILER_OPTIONS environment variable
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "inlineSourceMap": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "paths": {
+      "@artifacts/*": ["./artifacts/*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}

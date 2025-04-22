@@ -1,0 +1,46 @@
+services:
+    mongodb:
+        image: public.ecr.aws/rayls/rayls-mongors:latest
+        platform: linux/amd64
+        ports:
+            - "27017:27017"
+        volumes:
+            - ./mongodb/data:/data/db
+    privacy-ledger:
+        image: public.ecr.aws/rayls/rayls-privacy-ledger:v2.3.1
+        entrypoint: [ "/app/var/start.sh" ]
+        volumes:
+            - ./rayls/privacy-ledger/data:/app/data
+            - ./rayls/privacy-ledger/var/genesis.json:/app/var/genesis.json:ro
+            - ./rayls/privacy-ledger/var/start.sh:/app/var/start.sh
+        environment:
+            - MONGODB_DATABASE=rayls-privacy-ledger
+            - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017/admin?directConnection=true&replicaSet=rs0
+        ports:
+            - 8545:8545
+            - 8660:8660
+    relayer:
+        image: public.ecr.aws/rayls/rayls-relayer:v2.3.1
+        entrypoint: [ "/app/raylz-relayer", "run", "--env", "/app/var/.env" ]
+        volumes:
+            - ./rayls/relayer/var/.env:/app/var/.env:ro
+        restart: on-failure
+    kmm:
+        image: public.ecr.aws/rayls/rayls-kmm:v2.3.1
+        entrypoint: [ "/app/raylz-kos", "run", "--env", "/app/var/.env", "--port", "8083" ]
+        volumes:
+            - ./rayls/relayer/var/.env:/app/var/.env:ro
+        restart: on-failure
+        ports:
+            - 8083:8083
+    atomic:
+        image: public.ecr.aws/rayls/rayls-atomic-service:v2.3.1
+        entrypoint: [ "/app/raylz-atomic", "run", "--env", "/app/var/.env" ]
+        volumes:
+            - ./rayls/relayer/var/.env:/app/var/.env:ro
+        restart: on-failure
+    circom-api:
+        image: public.ecr.aws/rayls/rayls-circom-api:v2.3.1
+        restart: on-failure
+        ports:
+            - 3000:3000

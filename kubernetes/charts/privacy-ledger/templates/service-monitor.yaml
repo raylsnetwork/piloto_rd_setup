@@ -1,0 +1,18 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name:  {{ .Release.Name }}-svm
+  labels:
+    {{- include "privacy-ledger.labels" . | nindent 4 }}
+    project: {{ .Values.global.project.name }}
+spec:
+  endpoints:
+  - interval: 15s
+    scrapeTimeout: 30s
+    port: metrics
+    path: /debug/metrics/prometheus
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-svc
+{{- end }}
