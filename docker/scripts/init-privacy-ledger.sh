@@ -60,7 +60,7 @@ if [ ! -d "/app/data/privacy-ledger" ]; then
   
   echo "> Calling init"
   geth init \
-  --db.engine.host "\${MONGODB_CONNECTION_STRING}" \
+  --db.engine.host "${MONGODB_CONNECTION_STRING}" \
   --db.engine.name="\${MONGODB_DATABASE}" \
   --db.engine mongodb \
   --datadir "/app/data/privacy-ledger" \
@@ -81,7 +81,7 @@ _term() {
 trap _term SIGTERM
 
 geth \
---db.engine.host "\${MONGODB_CONNECTION_STRING}" \
+--db.engine.host "${MONGODB_CONNECTION_STRING}" \
 --db.engine.name="\${MONGODB_DATABASE}" \
 --db.engine mongodb \
 --cache 4096 \

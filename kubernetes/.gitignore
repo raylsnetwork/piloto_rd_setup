@@ -1,1 +1,2 @@
-values-test*
+.env
+values-test.yaml*

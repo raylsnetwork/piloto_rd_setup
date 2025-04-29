@@ -1,6 +1,4 @@
 global:
-  # -- Domain for the project.
-  domain: api.domain-example.com
   project:
     # -- Name of the project.
     name: rayls
@@ -36,14 +34,13 @@ privacyLedger:
   metricsPort: 6080
   env:
     # -- Network ID for the Privacy Ledger.
-    NETWORKID: 600123
+    NETWORKID: "600001"
     # -- Block period for the Privacy Ledger.
     PERIOD: 1
     # -- Gas limit for the Privacy Ledger.
     GAS_LIMIT: "45000000"
     # -- MongoDB connection string for the Privacy Ledger.
     MONGODB_CONN: "mongodb://<release-name>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
-    
   envFromSecret: []
   envFrom: []
    # @ignored
@@ -231,7 +228,7 @@ privacyLedger:
     # -- Enable or disable ingress for the Privacy Ledger.
     enabled: true
     # -- Annotations for the ingress.
-    className: "nginx-internal"
+    className: "ingress-name"
     # -- Annotations for the ingress.
     annotations: {}
     hosts:

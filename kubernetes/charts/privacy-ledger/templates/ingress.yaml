@@ -1,10 +1,10 @@
 {{- if .Values.privacyLedger.ingress.enabled }}
-{{- $fullName := include "privacy-ledger.fullname" . -}}
+{{- $releaseName := .Release.Name}}
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}-ingress
+  name: {{ $releaseName }}-ingress
   labels:
     {{- include "privacy-ledger.labels" . | nindent 4 }}
     project: {{ .Values.global.project.name }}
@@ -33,11 +33,11 @@ spec:
       http:
         paths:
           {{- range .paths }}
-          - path: {{ .path }}
+          - path: {{ .path | quote }}
             pathType: {{ .pathType | default "ImplementationSpecific" }}
             backend:
               service:
-                name: {{ $fullName }}-svc
+                name: "{{ $releaseName }}-svc"
                 port:
                   number: {{ .port }}
           {{- end }}

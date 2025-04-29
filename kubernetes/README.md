@@ -6,11 +6,18 @@
 - [Make](https://www.gnu.org/software/make/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
 - [Helm](https://helm.sh/)
 - [Kubernetes](https://kubernetes.io/docs/setup/)
 - [Cluster MongoDB com ReplicaSet](#mongodb)
 
+
+## Crie o arquivo .env
+
+Todo o setup via Docker Compose utiliza o arquivo `.env`. Existe um `.env-example` disponível para o processo de instalação. Crie um arquivo `.env` baseado no `.env-example`.
+
+```bash
+cp .env-example .env
+```
 
 ### Kubernetes Namespace
 
@@ -35,7 +42,17 @@ Essa imagem está disponível em `public.ecr.aws/rayls/rayls-mongors`
 Para realizar a instalação do MongoDB utilizando a imagem fornecida para Parfin.
 
 ```bash
-helm install <release.name> charts/mongodb -n <namespace>
+helm install mongodb charts/mongodb -n <namespace>
+```
+
+> ℹ️ Existem alguns targets no Makefile para facilitar o processo de deploy dos contratos. Para verificar os comandos disponíveis, basta executar o comando `make help`.
+
+```bash
+Usage: make <target>
+Targets:
+create-private-key      - Generate a private key for the Rayls service
+deploy-privacy-ledger   - Deploy the Privacy Ledger contracts
+create-relayer-secrets  - Generate secrets for the relayer service
 ```
 
 ## Rayls Privacy Ledger
@@ -56,17 +73,28 @@ O arquivo `./kubernetes/charts/privacy-ledger/values.yaml` define a configuraç�
 
 | Parâmetro                    | Descrição                                                                 |
 |-----------------------------|---------------------------------------------------------------------------|
-| `privacyLedger.env.MONGODB_CONN` | URL de conexão com o MongoDB. Ex: `mongodb://<release>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0` |
-| `privacyLedger.env.NETWORKID`    | O NETWORKID. Ex: `600123`                                                          |
-| 
+| `global.domain`                  | Domínio que será utilizado pela ingress da Privacy Ledger | 
+| `privacyLedger.env.MONGODB_CONN` | URL de conexão com o MongoDB. Ex: `mongodb://mongodb.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0` |
+| `privacyLedger.env.NETWORKID`    | O NETWORKID. Ex: `123456789`                                                          |
+| `ingress.enabled`                 | Determina se a ingress será criada ou não |
+| `ingress.className` | A classe da Ingress que será utilizada |
 
 ---
 
 ```yaml
+global:
+  # -- Domain for the project.
+  domain: domain-example.com
 privacyLedger:
   env:
-    MONGODB_CONN: "mongodb://<release>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
-    NETWORKID: 600123
+    MONGODB_CONN: "mongodb://mongodb.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
+    NETWORKID: "123456789"
+  ingress:
+    # -- Enable or disable ingress for the Privacy Ledger.
+    enabled: true
+    # -- Annotations for the ingress.
+    className: "ingress-name"
+    # -- Annotations for the ingress.
 ```
 
 - Após atualizar as variáveis, realize o deploy via Helm:
@@ -77,19 +105,26 @@ helm install privacy-ledger charts/privacy-ledger -n <namespace>
 
 ### Realizando deploy dos contratos da Privacy Ledger
 
-1. Atualize o `.env` com a `PRIVATE_KEY_SYSTEM`, `RPC_URL_NODE_PL`, `NODE_PL_CHAIN_ID`, `RPC_URL_NODE_CC` e `WS_URL_NODE_CC`:
+1. Crie uma chave `PRIVATE_KEY_SYSTEM` para a Privacy Ledger e atualize a variável no `.env`:
 
 ```bash
-NODE_CC_CHAIN_ID="999990001"
-RPC_URL_NODE_CC="http://<besu-endpoint>:8545"
-WS_URL_NODE_CC="ws://<besu-endpoint>:8546"
-PRIVATE_KEY_SYSTEM="0x0000000000000000000000000000000000000000"
-RPC_URL_NODE_PL="http://<privacy-ledger-ingress-endpoint>/"
-NODE_PL_CHAIN_ID="600123"
-COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY="0x9bfe7a23fC8882D7A692d959C89c0c2A7266bfED"
+make create-private-key
 ```
 
-2. Realize deploy dos contratos da Privacy Ledger:
+`.env`
+```bash
+PRIVATE_KEY_SYSTEM=0x1234567890123456789012345678901234567890123456789012345689
+```
+
+2. Atualize o `.env` com a `RPC_URL_NODE_PL` e `NODE_PL_CHAIN_ID`:
+
+```bash
+PRIVATE_KEY_SYSTEM=0x123456789123456789123456789123456789123456789
+RPC_URL_NODE_PL=http://<privacy-ledger-ingress-endpoint>/
+NODE_PL_CHAIN_ID=123456789
+```
+
+3. Realize deploy dos contratos da Privacy Ledger:
 
 ```bash
 make deploy-privacy-ledger
@@ -158,14 +193,9 @@ BLOCKCHAIN_ENYGMA_PL_EVENTS=0x0000000000000000000000000000000000000000
 
 Após realizar o deploy da Governance API e Privacy Ledger será possível inicializar os demais componentes.
 
-1. Crie as chaves `API_KEY` e `API_SECRET` rodando o seguinte script:
+1. Crie as chaves necessárias para o relayer executando o seguinte script:
 ```bash
-api_key=$(openssl rand -hex 16)
- 
-api_secret=$(openssl rand -hex 32)
- 
-echo "API_KEY=$api_key"
-echo "API_SECRET=$api_secret"
+make create-relayer-secrets
 ```
 
 2. Atualize as variáveis de ambiente em `./kubernetes/charts/relayer/values.yaml`.
@@ -203,11 +233,11 @@ echo "API_SECRET=$api_secret"
     KMS_GCPKEYRING: "xxx"
     KMS_GCPCRYPTOKEY: "xxx"
     KMS_ENCRYPTORSERVICE: "plaintext"
-    BLOCKCHAIN_KMS_API_KEY: "API_KEY"
-    BLOCKCHAIN_KMS_SECRET: "API_SECRET"
     KMS_DATABASE_CONNECTIONSTRING: "mongodb://<mongodb-release-name>.<namespace>.svc.cluster.local:27017/admin?directConnection=true&replicaSet=rs0"
-    KMS_API_KEY: "API_KEY"
-    KMS_SECRET: "API_SECRET"
+    BLOCKCHAIN_KMS_API_KEY: "bc02718914e14e20f58f1a7fb8e042f8"
+    BLOCKCHAIN_KMS_SECRET: "a0b25b23605d2f8ca7cb418838a1cddf40c9626682b4b19df3ed245681cc6a5a"
+    KMS_API_KEY: "bc02718914e14e20f58f1a7fb8e042f8"
+    KMS_SECRET: "a0b25b23605d2f8ca7cb418838a1cddf40c9626682b4b19df3ed245681cc6a5a"
 ```
 
 3. Realize o deploy via Helm:

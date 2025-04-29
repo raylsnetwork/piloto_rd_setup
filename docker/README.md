@@ -8,43 +8,30 @@
 - [Docker](https://docs.docker.com/engine/install/ubuntu/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Criando .env
+### Criando o arquivo `.env`
 
-Todo o setup via Docker compose está utilizando `.env`. Existe um `.env-example` disponível para todo o processo de instalação. Crie um arquivo `.env` baseado no `.env-example`
+Todo o setup via Docker Compose utiliza o arquivo `.env`. Existe um `.env-example` disponível para o processo de instalação. Crie um arquivo `.env` baseado no `.env-example`.
 
 ```bash
-# The following environment variables are used to configure the Rayls application.
-# Please replace the placeholder values with your actual configuration.
-
-# Deploy Contracts
-NODE_CC_CHAIN_ID="999990001"
-RPC_URL_NODE_CC="http://<besu-endpoint>:8545"
-WS_URL_NODE_CC="ws://<besu-endpoint>:8546"
-PRIVATE_KEY_SYSTEM="0x0000000000000000000000000000000000000000"
-RPC_URL_NODE_PL="http://privacy-ledger:8545"
-NODE_PL_CHAIN_ID="123456789"
-COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY="0x9bfe7a23fC8882D7A692d959C89c0c2A7266bfED"
-
-# Relayer variables
-BLOCKCHAIN_DATABASE_NAME=rayls-relayer
-BLOCKCHAIN_PLSTARTINGBLOCK=100
-BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES=500
-BLOCKCHAIN_PLENDPOINTADDRESS=0x1234567890abcdef1234567890abcdef12345678
-BLOCKCHAIN_LISTENER_BATCH_BLOCKS=50
-BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
-BLOCKCHAIN_ENYGMA_PL_EVENTS=0x1234567890abcdef1234567890abcdef12345678
-COMMITCHAIN_CCSTARTINGBLOCK=123456
-COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=123456
-KMS_DATABASE_NAME=rayls-kmm
-BLOCKCHAIN_KMS_API_KEY="example_api_key"
-BLOCKCHAIN_KMS_SECRET="example_secret"
-KMS_API_KEY="example_api_key"
-KMS_SECRET="example_secret"
+cp .env-example .env
 ```
 
-## Instalando o ambiente Rayls
+> ℹ️ Existem alguns targets no Makefile para facilitar o processo de instalação. Para verificar os comandos disponíveis, basta executar o comando `make help`.
+
+```bash
+Usage: make <target> [action]
+Targets:
+mongodb                 - (Optional) - Manage the MongoDB service (use 'up' to start or 'down' to stop)
+create-private-key      - Generate a private key for the Rayls service
+privacy-ledger          - Manage the Privacy Ledger service (use 'up' to start or 'down' to stop)
+create-relayer-secrets  - Generate secrets for the relayer service
+relayer                 - Manage the Relayer service along with KMM, Atomic, and Circom-API (use 'up' to start or 'down' to stop)
+down-all                - Stop all running services and remove associated volumes
+destroy-all             - Permanently delete the Rayls, MongoDB, and OpenZeppelin data (requires confirmation)
+```
 
 ### MongoDB
+
 > **⚠️ Atenção:**
 > Tanto a Rayls Privacy Ledger quanto o Rayls Relayer necessitam de um cluster MongoDB com Replica Set configurado. Caso nenhuma connection string seja informada, inicializaremos um cluster MongoDB local com Replica Set configurado.
 >
@@ -60,15 +47,28 @@ KMS_SECRET="example_secret"
 Para inicializar o MongoDB basta executar o comando:
 
 ```bash
-make up-mongodb
+make mongodb up
 ```
+
+- Para utilizar um cluster MongoDB gerenciado, basta inserir a string de conexão `MONGODB_CONNECTION_STRING` no `.env`.
+
+## Instalando o ambiente Rayls
 
 ### Privacy Ledger
 
-1. Inicie a aplicação utilizando o comando:
+1. Crie uma chave `PRIVATE_KEY_SYSTEM` para a Privacy Ledger e atualize a variável no `.env`:
 
 ```bash
-make up-privacy-ledger
+make create-private-key
+```
+`.env`
+```bash
+PRIVATE_KEY_SYSTEM=0x1234567890123456789012345678901234567890123456789012345689
+```
+
+2. Inicie a aplicação utilizando o comando:
+```bash
+make privacy-ledger up
 ```
 
 - Output:
@@ -90,11 +90,7 @@ Starting Privacy Ledger...
  ✔ Container docker-privacy-ledger-1  Started  
 ```
 
-2. Após iniciar a Privacy Ledger será necessário realizar o deploy dos contratos, execute o comando:
-
-```bash
-make deploy-privacy-ledger
-```
+- O processo de deploy dos contratos da Privacy Ledger será realizado automaticamente.
 
 Output:
 ```bash
@@ -160,20 +156,14 @@ BLOCKCHAIN_ENYGMA_PL_EVENTS=0x0000000000000000000000000000000000000000
 
 Após realizar o deploy da Governance API e Privacy Ledger será possível inicializar os demais componentes.
 
-1. Crie as chaves `API_KEY` e `API_SECRET`:
+1. Crie as chaves necessárias para o relayer executando o seguinte script:
 ```bash
-api_key=$(openssl rand -hex 16)
- 
-api_secret=$(openssl rand -hex 32)
- 
-echo "API_KEY=$api_key"
-echo "API_SECRET=$api_secret"
+make create-relayer-secrets
 ```
 
 2. Atualize as variáveis na sessão `# Relayer variables`
 ```bash
 # Relayer variables
-BLOCKCHAIN_DATABASE_NAME=rayls-relayer
 BLOCKCHAIN_PLSTARTINGBLOCK=100
 BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES=500
 BLOCKCHAIN_PLENDPOINTADDRESS=0x1234567890abcdef1234567890abcdef12345678
@@ -182,7 +172,6 @@ BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
 BLOCKCHAIN_ENYGMA_PL_EVENTS=0x1234567890abcdef1234567890abcdef12345678
 COMMITCHAIN_CCSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
 COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
-KMS_DATABASE_NAME=rayls-kmm
 BLOCKCHAIN_KMS_API_KEY="API_KEY"
 BLOCKCHAIN_KMS_SECRET="API_SECRET"
 KMS_API_KEY="API_KEY"
@@ -191,7 +180,7 @@ KMS_SECRET="API_SECRET"
 
 2. Inicialize os componentes:
 ```bash
-make up-relayer
+make relayer up
 ```
 
 - Output
@@ -237,22 +226,6 @@ Para encerrar os logs do Relayer basta executar o comando `ctrl+c`
 - make: `make --version`
 - docker: `docker --version`
 - docker compose: `docker compose version` 
-
-#### Como verifico os comandos disponíveis neste projeto?
-
-Para verificar os comandos disponíveis basta rodar o comando `make help`
-
-```bash
-up-mongodb            - Start the mongodb service
-up-privacy-ledger     - Start the privacy-ledger and mongodb services
-deploy-privacy-ledger - Deploy the privacy-ledger contracts
-up-relayer            - Start the relayer service, kmm, atomic and circom-api
-up                    - Start all services
-down                  - Stop all services and remove orphans
-destroy-rayls         - Destroy the Rayls directory
-destroy-all           - Destroy the Rayls and Mongodb directory
-destroy-mongodb       - Destroy the Mongodb directory
-```
 
 #### Como verifico se meus containers estão rodando?
 
