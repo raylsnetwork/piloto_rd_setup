@@ -1,0 +1,19 @@
+{
+    "name": "@rayls/contracts",
+    "description": "A package for Rayls Contracts",
+    "version": "2.3.1-beta3",
+    "files": [
+        "**/*.sol"
+    ],
+    "keywords": [
+        "rayls",
+        "network",
+        "solidity"
+    ],
+    "devDependencies": {
+        "@openzeppelin/contracts": "^5.0.1"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts-upgradeable": "^5.0.1"
+    }
+}

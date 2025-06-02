@@ -1,0 +1,53 @@
+{
+  "name": "rayls-contracts",
+  "version": "2.3.1-beta3",
+  "scripts": {
+    "postinstall": "sed -i.bak -e  's|.toLowerCase()||g' -e 's|`${genDir}|`${this.outDir}|g' -e 's|await fsp.mkdir(g|//await fsp.mkdir(g|g' node_modules/@solarity/hardhat-gobind/dist/src/abigen/generator.js",
+    "generate-relayer-cfg": "hardhat run ./hardhat/utils/cli/generate-relayer-config.ts",
+    "after-compile": "hardhat run ./hardhat/utils/cli/contract-types.ts",
+    "compile": "hardhat compile && npm run after-compile",
+    "bindings:generate": "hardhat gobind && bash organize-bindings.sh",
+    "bindings:move": "bash move-bindings.sh",
+    "deploy:commit-chain": "hardhat run ./hardhat/script/deploy/commit-chain.ts",
+    "deploy:privacy-ledger": "hardhat deploy:privacy-ledger",
+    "test:e2e-am": "hardhat test ./hardhat/test/e2e/ArbitraryMessages.ts",
+    "test:e2e-batch": "hardhat test ./hardhat/test/e2e/BatchTransfer.ts",
+    "test:e2e-erc20": "hardhat test ./hardhat/test/e2e/Erc20.ts",
+    "test:e2e-erc721": "hardhat test ./hardhat/test/e2e/Erc721.ts",
+    "test:e2e-erc1155": "hardhat test ./hardhat/test/e2e/Erc1155.ts",
+    "test:s": "hardhat test ./hardhat/test/performance/AtomicStability.ts",
+    "test:e2e": "hardhat test ./hardhat/test/e2e/*.ts",
+    "test:p": "hardhat test ./hardhat/test/performance/AtomicPerformance.ts",
+    "test:mesh": "hardhat test ./hardhat/test/performance/AtomicMesh.ts --bail",
+    "test:unit": "hardhat test ./hardhat/test/unit/*.ts",
+    "test:unit-enygma": "hardhat test ./hardhat/test/unit/Enygma.ts",
+    "test:unit-erc20": "hardhat test ./hardhat/test/unit/TokenExample.ts",
+    "test:unit-custom": "hardhat test ./hardhat/test/unit/TokenCustomExample.ts",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-foundry": "^1.1.1",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/hardhat-upgrades": "^3.1.1",
+    "@solarity/hardhat-gobind": "^1.2.2",
+    "ajv": "^8.12.0",
+    "hardhat": "^2.23.0",
+    "hardhat-contract-sizer": "^2.10.0",
+    "mongodb": "^6.12.0",
+    "prettier": "^3.3.2",
+    "prettier-plugin-solidity": "^1.3.1"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@swc-node/register": "^1.10.9",
+    "cmd-ts": "^0.13.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
+    "ora": "^8.1.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "typescript": "^5.6.3"
+  }
+}

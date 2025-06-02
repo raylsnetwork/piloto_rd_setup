@@ -1,0 +1,2 @@
+npx hardhat tokenDataAndBalance --private-ledger A --endpoint-address 0x4b50921e0D4AB25134F1C34CAEA21D3532cF46dB --address-to-check 0xd14d88bd945c24cb25cf5339ca1ab89c028fa8a2 --resource-id 0xccd25a3ea177315186f5227480f969e06c4d7d9d8e1108e5e801f579d1cb8010
+npx hardhat tokenDataAndBalance --private-ledger B --endpoint-address 0x925E39538bE6292Dc33ad85B9b5D5fc6Eda37afe --address-to-check 0xd14d88bd945c24cb25cf5339ca1ab89c028fa8a2 --resource-id 0xccd25a3ea177315186f5227480f969e06c4d7d9d8e1108e5e801f579d1cb8010
