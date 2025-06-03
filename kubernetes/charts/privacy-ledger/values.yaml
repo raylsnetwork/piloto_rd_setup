@@ -14,7 +14,7 @@ fullnameOverride: ""
 
 prometheus:
   # -- Enable or disable Prometheus monitoring.
-  enabled: true
+  enabled: false
 
 privacyLedger:
   # -- Enable or disable the Privacy Ledger.

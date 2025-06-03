@@ -23,7 +23,7 @@ relayer:
     # -- Pull policy for the relayer Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the relayer Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
@@ -82,7 +82,7 @@ atomic:
     # -- Pull policy for the atomic service Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the atomic service Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
@@ -104,7 +104,7 @@ kmm:
     # -- Pull policy for the KMM Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the KMM Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   replicas: 1
   EnvFrom: []
   service:
@@ -129,7 +129,7 @@ circomApi:
     # -- Pull policy for the Circom API Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the Circom API Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   replicas: 1
   EnvFrom: []
   service:
