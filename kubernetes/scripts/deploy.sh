@@ -4,7 +4,9 @@ function deploy_privacy_ledger() {
     docker run -it --rm \
         --env-file .env \
         -v "$(pwd)/.openzeppelin:/app/.openzeppelin" \
-        public.ecr.aws/rayls/rayls-contracts-privacy-ledger:v2.3.1
+        --entrypoint /bin/sh \
+        public.ecr.aws/rayls/rayls-contracts:v2.4.0 \
+        -c "npx hardhat deploy:privacy-ledger --private-ledger CUSTOM  --network custom_pl"
 }
 
 if [[ "$1" == "deploy_privacy_ledger" ]]; then

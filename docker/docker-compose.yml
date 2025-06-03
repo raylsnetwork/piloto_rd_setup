@@ -18,7 +18,9 @@ services:
             - 8545:8545
             - 8660:8660
     deploy-privacy-ledger:
-        image: public.ecr.aws/rayls/rayls-contracts-privacy-ledger:v2.3.1
+        image: public.ecr.aws/rayls/rayls-contracts:v2.4.0
+        entrypoint: ["/bin/sh"]
+        command: ["-c", "npx hardhat deploy:privacy-ledger --private-ledger CUSTOM --network custom_pl"]
         env_file:
           - .env
         volumes:
@@ -26,13 +28,13 @@ services:
         stdin_open: true
         tty: true
     relayer:
-        image: public.ecr.aws/rayls/rayls-relayer:v2.3.1
+        image: public.ecr.aws/rayls/rayls-relayer:v2.4.0
         entrypoint: [ "/app/raylz-relayer", "run", "--env", "/app/var/.env" ]
         volumes:
             - ./rayls/relayer/var/.env:/app/var/.env:ro
         restart: on-failure
     kmm:
-        image: public.ecr.aws/rayls/rayls-kmm:v2.3.1
+        image: public.ecr.aws/rayls/rayls-kmm:v2.4.0
         entrypoint: [ "/app/raylz-kos", "run", "--env", "/app/var/.env", "--port", "8083" ]
         volumes:
             - ./rayls/relayer/var/.env:/app/var/.env:ro
@@ -40,13 +42,13 @@ services:
         ports:
             - 8083:8083
     atomic:
-        image: public.ecr.aws/rayls/rayls-atomic-service:v2.3.1
+        image: public.ecr.aws/rayls/rayls-atomic-service:v2.4.0
         entrypoint: [ "/app/raylz-atomic", "run", "--env", "/app/var/.env" ]
         volumes:
             - ./rayls/relayer/var/.env:/app/var/.env:ro
         restart: on-failure
     circom-api:
-        image: public.ecr.aws/rayls/rayls-circom-api:v2.3.1
+        image: public.ecr.aws/rayls/rayls-circom-api:v2.4.0
         restart: on-failure
         ports:
             - 3000:3000

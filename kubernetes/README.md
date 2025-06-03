@@ -204,7 +204,7 @@ make create-relayer-secrets
   env:
     BLOCKCHAIN_DATABASE_TYPE: "mongodb"
     BLOCKCHAIN_KMS_OPERATION_SERVICE_ROOT_URL: "http://<relayer-release>-kmm-svc:8080"
-    BLOCKCHAIN_CHAINID: 600123
+    BLOCKCHAIN_CHAINID: "600123"
     BLOCKCHAIN_CHAINURL: "http://<release-privacy-ledger>-svc:8545"
     BLOCKCHAIN_PLSTARTINGBLOCK: "0"
     BLOCKCHAIN_EXECUTOR_BATCH_MESSAGES: "500"

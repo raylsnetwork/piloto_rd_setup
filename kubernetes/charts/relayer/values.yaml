@@ -23,7 +23,7 @@ relayer:
     # -- Pull policy for the relayer Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the relayer Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
@@ -49,6 +49,7 @@ relayer:
     COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY: "0x3A3675E13F1b6D4183528974cc431d8123669e64"
     COMMITCHAIN_CCENDPOINTMAXBATCHMESSAGES: "500"
     COMMITCHAIN_EXPIRATIONREVERTTIMEINMINUTES: "30"
+    COMMITCHAIN_ZKDVPMERKLETREEDEPTH: "8"
     LOG_LEVEL: "Info"
     LOG_HANDLER: "Text"
     KMS_CORSDOMAIN: "*"
@@ -82,7 +83,7 @@ atomic:
     # -- Pull policy for the atomic service Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the atomic service Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
@@ -104,7 +105,7 @@ kmm:
     # -- Pull policy for the KMM Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the KMM Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   replicas: 1
   EnvFrom: []
   service:
@@ -129,7 +130,7 @@ circomApi:
     # -- Pull policy for the Circom API Docker image.
     pullPolicy: IfNotPresent
     # -- Tag of the Circom API Docker image.
-    tag: v2.3.1
+    tag: v2.4.0
   replicas: 1
   EnvFrom: []
   service:
