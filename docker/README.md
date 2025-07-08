@@ -61,9 +61,14 @@ make mongodb up
 ```bash
 make create-private-key
 ```
+
 `.env`
 ```bash
-PRIVATE_KEY_SYSTEM=0x1234567890123456789012345678901234567890123456789012345689
+PRIVATE_KEY_SYSTEM=0x3f8e605eea31dfbe118a34391876caf619702f6b4f39dd7665db4ca7609322cb
+NODE_CC_CHAIN_ID=1911
+COMMITCHAIN_CCDEPLOYMENTPROXYREGISTRY=0xc2BaA3D18EE3B9A2425Bd5a8018e3F2f1171cDd2
+RPC_URL_NODE_CC=https://commitchain.parfin.io
+NODE_PL_CHAIN_ID=example # CHAIN ID da PL a ser deployada
 ```
 
 2. Inicie a aplicação utilizando o comando:
@@ -156,12 +161,7 @@ BLOCKCHAIN_ENYGMA_PL_EVENTS=0x0000000000000000000000000000000000000000
 
 Após realizar o deploy da Governance API e Privacy Ledger será possível inicializar os demais componentes.
 
-1. Crie as chaves necessárias para o relayer executando o seguinte script:
-```bash
-make create-relayer-secrets
-```
-
-2. Atualize as variáveis na sessão `# Relayer variables`
+1. Atualize as variáveis na sessão `# Relayer variables`
 ```bash
 # Relayer variables
 BLOCKCHAIN_PLSTARTINGBLOCK=100
@@ -170,12 +170,14 @@ BLOCKCHAIN_PLENDPOINTADDRESS=0x1234567890abcdef1234567890abcdef12345678
 BLOCKCHAIN_LISTENER_BATCH_BLOCKS=50
 BLOCKCHAIN_STORAGE_PROOF_BATCH_MESSAGES=200
 BLOCKCHAIN_ENYGMA_PL_EVENTS=0x1234567890abcdef1234567890abcdef12345678
-COMMITCHAIN_CCSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
-COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=123456 # Gerado no Deploy dos Contratos da Commit Chain
 BLOCKCHAIN_KMS_API_KEY="API_KEY"
 BLOCKCHAIN_KMS_SECRET="API_SECRET"
 KMS_API_KEY="API_KEY"
 KMS_SECRET="API_SECRET"
+
+## Gerado no Deploy dos Contratos da Commit Chain
+COMMITCHAIN_CCSTARTINGBLOCK=2676063 
+COMMITCHAIN_ATOMICREVERTSTARTINGBLOCK=2676063 # Gerado no Deploy dos Contratos da Commit Chain
 ```
 
 2. Inicialize os componentes:
